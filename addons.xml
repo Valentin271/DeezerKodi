@@ -11,9 +11,9 @@
     </extension>
 
     <extension name="Valentin271's Kodi repo" point="xbmc.addon.repository">
-        <info>https://raw.githubusercontent.com/Valentin271/DeezerKodi/development/addons.xml</info>
-        <checksum>https://raw.githubusercontent.com/Valentin271/DeezerKodi/development/addons.xml.md5</checksum>
-        <datadir>https://raw.githubusercontent.com/Valentin271/DeezerKodi/development/</datadir>
+        <info>https://raw.githubusercontent.com/Valentin271/DeezerKodi/master/addons.xml</info>
+        <checksum>https://raw.githubusercontent.com/Valentin271/DeezerKodi/master/addons.xml.md5</checksum>
+        <datadir>https://raw.githubusercontent.com/Valentin271/DeezerKodi/master/</datadir>
     </extension>
 
     <extension point="xbmc.addon.metadata">
