@@ -49,13 +49,6 @@ class Connection(object):
             md5.update(self._password)
             self._password = md5.hexdigest()
 
-    def _object_decoder(self, dct):
-        if 'type' in dct:
-            return _object_from_type(dct['type'], self, dct)
-        if 'data' in dct:
-            return IterableCollection(self, collection=dct)
-        return dct
-
     """obtain access token by pretending to be a smart tv"""
 
     def _obtain_access_token(self):
@@ -91,20 +84,20 @@ class Connection(object):
         r = requests.get(base_url, params=self._merge_two_dicts(
             {'output': 'json', 'access_token': self._access_token}, parameters
         ))
-        return json.loads(r.text, object_hook=self._object_decoder)
+        return json.loads(r.text)
 
     def make_request_url(self, url):
         r = requests.get(url)
-        return json.loads(r.text, object_hook=self._object_decoder)
+        return json.loads(r.text)
 
-    def make_request_streaming_custom(self, id='', type=''):
+    def make_request_streaming_custom(self, id='', type='track'):
         r = requests.get(self._API_BASE_STREAMING_URL, params={
             'access_token': self._access_token,
             ("%s_id" % type): id,
             'device': 'panasonic'
         })
         if type.startswith('radio') or type.startswith('artist'):
-            return json.loads(r.text, object_hook=self._object_decoder)
+            return json.loads(r.text)
         return r.text
 
     def make_request_streaming(self, deezer_object):

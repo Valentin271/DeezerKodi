@@ -1,3 +1,6 @@
 .idea
 *.pyo
 *.pyc
+__pycache__
+
+api_test.py

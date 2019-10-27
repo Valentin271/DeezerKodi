@@ -1,26 +1,37 @@
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addons>
-<addon id="plugin.audio.deezer" name="Deezer" version="0.0.3" provider-name="kubatek94">
+<?xml version='1.0' encoding='UTF-8'?>
+<addons><addon id="plugin.audio.deezer" name="Deezer" provider-name="Valentin271" version="0.0.4">
+
     <requires>
-        <import addon="script.module.requests" version="2.7.0"/>
+        <import addon="xbmc.python" optional="true" version="2.26.0" />
+        <import addon="script.module.requests" version="2.7.0" />
     </requires>
-    <extension point="xbmc.python.pluginsource" library="start.py">
+
+    <extension library="addon.py" point="xbmc.python.pluginsource">
         <provides>audio</provides>
     </extension>
-    <extension point="xbmc.addon.repository" name="kubatek94's Kodi Repository">
-        <info>https://raw.githubusercontent.com/kubatek94/DeezerKodi/master/addons.xml</info>
-        <checksum>https://raw.githubusercontent.com/kubatek94/DeezerKodi/master/addons.xml.md5</checksum>
-        <datadir zip="true">https://raw.githubusercontent.com/kubatek94/DeezerKodi/master/</datadir>
+
+    <extension name="Valentin271's Kodi repo" point="xbmc.addon.repository">
+        <info>https://raw.githubusercontent.com/Valentin271/DeezerKodi/master/addons.xml</info>
+        <checksum>https://raw.githubusercontent.com/Valentin271/DeezerKodi/master/addons.xml.md5</checksum>
+        <datadir>https://raw.githubusercontent.com/Valentin271/DeezerKodi/master/</datadir>
     </extension>
+
     <extension point="xbmc.addon.metadata">
-        <platform>all</platform>
-        <summary lang="en">Deezer online music service</summary>
-        <description lang="en">Deezer online music streaming service. Requires Premium account.</description>
+        <summary lang="en">This addon allows you to listen to music from Deezer.</summary>
+        <description lang="en">This addon allows you to stream music from Deezer. You can search for tracks, artists and albums. A premium account is REQUIRED.</description>
+        <disclaimer lang="en">This addon was not provided by Deezer.</disclaimer>
+        <news>First pre-release</news>
+        <platform>all</platform>  
         <language>en</language>
-        <license>GNU GENERAL PUBLIC LICENSE. Version 3, June 2007</license>
-        <email>kubatek94@gmail.com</email>
-        <website>https://github.com/kubatek94/DeezerKodi</website>
-        <source>https://github.com/kubatek94/DeezerKodi</source>
+        <license>GPL-3.0</license>
+        <forum>https://github.com/Valentin271/DeezerKodi/issues</forum>
+        <website>https://github.com/Valentin271/DeezerKodi</website>
+        <source>https://github.com/Valentin271/DeezerKodi/tree/master/src</source>
+        <email />
+        <assets>
+            <icon>resources/icon.png</icon>
+            <fanart>resources/fanart.jpg</fanart>
+            <screenshot />
+        </assets>
     </extension>
-</addon>
-</addons>
+</addon></addons>
