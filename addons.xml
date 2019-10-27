@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<addons><addon id="plugin.audio.deezer" name="Deezer" provider-name="Valentin271" version="0.0.4">
+<addons><addon id="plugin.audio.deezerkodi" name="Deezer" provider-name="Valentin271" version="0.0.4">
 
     <requires>
         <import addon="xbmc.python" optional="true" version="2.26.0" />
@@ -11,9 +11,9 @@
     </extension>
 
     <extension name="Valentin271's Kodi repo" point="xbmc.addon.repository">
-        <info>https://raw.githubusercontent.com/Valentin271/DeezerKodi/master/addons.xml</info>
-        <checksum>https://raw.githubusercontent.com/Valentin271/DeezerKodi/master/addons.xml.md5</checksum>
-        <datadir>https://raw.githubusercontent.com/Valentin271/DeezerKodi/master/</datadir>
+        <info>https://raw.githubusercontent.com/Valentin271/DeezerKodi/development/addons.xml</info>
+        <checksum>https://raw.githubusercontent.com/Valentin271/DeezerKodi/development/addons.xml.md5</checksum>
+        <datadir>https://raw.githubusercontent.com/Valentin271/DeezerKodi/development/</datadir>
     </extension>
 
     <extension point="xbmc.addon.metadata">
