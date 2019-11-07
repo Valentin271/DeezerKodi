@@ -118,8 +118,7 @@ def play_track(id):
         xbmcplugin.setResolvedUrl(addon_handle, True, listitem=li)
     else:
         logging.warning('Got non-valid url, passing track')
-        li = xbmcgui.ListItem(path='')
-        xbmcplugin.setResolvedUrl(addon_handle, False, listitem=li)
+        xbmcplugin.setResolvedUrl(addon_handle, False, None)
 
 
 def show_user(id):
