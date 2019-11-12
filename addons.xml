@@ -1,8 +1,8 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<addons><addon id="plugin.audio.deezer" name="Deezer" provider-name="Valentin271" version="0.0.5">
+<addons><addon id="plugin.audio.deezer" name="Deezer" provider-name="Valentin271" version="0.0.6">
 
     <requires>
-        <import addon="xbmc.python" optional="true" version="2.26.0" />
+	<import addon="xbmc.python" optional="true" version="2.24.0" />
         <import addon="script.module.requests" version="2.7.0" />
     </requires>
 
@@ -20,7 +20,14 @@
         <summary lang="en">This addon allows you to listen to music from Deezer.</summary>
         <description lang="en">This addon allows you to stream music from Deezer. You can search for tracks, artists and albums. A premium account is REQUIRED.</description>
         <disclaimer lang="en">This addon was not provided by Deezer.</disclaimer>
-        <news>First pre-release</news>
+	<news>
+[v0.0.6]
+- Fixed bug where kodi crashes when a song was set to not playable by the API
+- Fixed bug that prevented the extension from installing on version older than Leia 18
+
+[v0.0.5]
+ - First pre-release
+	</news>
         <platform>all</platform>  
         <language>en</language>
         <license>GPL-3.0</license>

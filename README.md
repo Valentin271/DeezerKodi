@@ -9,7 +9,7 @@ It plays the .mp3 tracks in 128kb resolution only as that's the max available bi
 
 
 # Installation
-* Download the [latest release zip file](https://raw.githubusercontent.com/Valentin271/DeezerKodi/master/plugin.audio.deezer/plugin.audio.deezer-0.0.5.zip) located at `plugin.audio.deezer/plugin.audio.deezer-x.y.z.zip`.
+* Download the [latest release zip file](https://raw.githubusercontent.com/Valentin271/DeezerKodi/master/plugin.audio.deezer/plugin.audio.deezer-0.0.6.zip) located at `plugin.audio.deezer/plugin.audio.deezer-x.y.z.zip`.
 * Move it to your kodi box.
 * Install it by selecting `'Install from zip file'` in the addon menu.
 
@@ -19,9 +19,9 @@ And that's all, it should be updated automatically on every release.
 If you previously installed kubatek94's DeezerKodi addon, you should uninstall it first.
 
 ### Compatibility
-This addon should be compatible with every version of kodi across devices. However it has been tested only on ubuntu 18.04.
+This addon should be compatible with every version of kodi from Jarvis 16 to latest and across devices. However it has been tested only with Krypton 17.6 on Ubuntu 18.04 and Debian, and with Leia 18.x on Ubuntu 18.04.
 Feel free to let me know if one version/OS or another is working or not.  
-Also note that this addon is designed for kodi v17 Krypton and later.
+Also note that this addon is designed for kodi v18 Leia and later.
 
 # Limitations
 Although the addon is working for basic usage, you can't listen to your uploaded music.  
