@@ -88,7 +88,7 @@ def play_list(played_id):
     for pos, line in enumerate(lines):
         id, name, album, image_big, artist, duration = line
 
-        # setting song infos
+        # setting song infos (seems to work only with kodi 18)
         li = xbmcgui.ListItem(name, thumbnailImage=image_big)
         li.setInfo('music', {'title': name, 'album': album, 'artist': artist, 'duration': duration})
 
@@ -143,7 +143,7 @@ def show_playlist(playlist_data, reverse=True, album_infos={}):
     """
     Gather playlist content, display it
     and write it in a tmp DB for queue adding later.
-    album_infos: dict like {'name': album_name, 'cover': album_cover}
+    album_infos: dict like {'name': album_name, 'cover': album_cover} # used when displaying album
     """
     items = []
     playlist = []

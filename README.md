@@ -19,7 +19,7 @@ And that's all, it should be updated automatically on every release.
 If you previously installed kubatek94's DeezerKodi addon, you should uninstall it first.
 
 ### Compatibility
-This addon should be compatible with every version of kodi from Jarvis 16 to latest and across devices. However it has been tested only with Krypton 17.6 on Ubuntu 18.04 and Debian, and with Leia 18.x on Ubuntu 18.04.
+This addon should be compatible with every version of kodi from Jarvis 16 to latest and across devices. However it has been tested only with Krypton 17.6 on Debian, and with Leia 18.x on Ubuntu 18.04.
 Feel free to let me know if one version/OS or another is working or not.  
 Also note that this addon is designed for kodi v18 Leia and later.
 
