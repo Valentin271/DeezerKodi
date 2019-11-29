@@ -159,7 +159,7 @@ def show_playlist(playlist_data, reverse=True, album_infos={}):
 
     # creating DB or clearing from previous playlist
     playlist_tmpdb.execute('DROP TABLE IF EXISTS playlist')
-    playlist_tmpdb.execute('CREATE TABLE IF NOT EXISTS playlist (id int primary key, name text, album text, image_big text, artist text, duration int)')
+    playlist_tmpdb.execute('CREATE TABLE IF NOT EXISTS playlist (id int, name text, album text, image_big text, artist text, duration int)')
 
     logging.info('Gathering playlist info ...')
     while True:
