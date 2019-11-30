@@ -79,12 +79,12 @@ def play_list(played_id):
 
     # connecting to DB
     logging.debug('Openning playlist DB')
-    playlist_tmpdb_conn = sqlite3.connect(xbmc.translatePath('special://temp/deezer-playlist.tmpdb'))
+    playlist_tmpdb_conn = sqlite3.connect(xbmc.translatePath(u'special://temp/deezer-playlist.tmpdb'))
     playlist_tmpdb = playlist_tmpdb_conn.cursor()
 
     # gathering DB data
     logging.info('Querying DB for songs info')
-    playlist_tmpdb.execute('SELECT * FROM playlist')
+    playlist_tmpdb.execute(u'SELECT * FROM playlist')
     lines = playlist_tmpdb.fetchall()
 
     for pos, line in enumerate(lines):
@@ -160,8 +160,8 @@ def show_playlist(playlist_data, reverse=True, album_infos={}):
     playlist_tmpdb = playlist_tmpdb_conn.cursor()
 
     # creating DB or clearing from previous playlist
-    playlist_tmpdb.execute('DROP TABLE IF EXISTS playlist')
-    playlist_tmpdb.execute('CREATE TABLE IF NOT EXISTS playlist (id int, name text, album text, image_big text, artist text, duration int)')
+    playlist_tmpdb.execute(u'DROP TABLE IF EXISTS playlist')
+    playlist_tmpdb.execute(u'CREATE TABLE IF NOT EXISTS playlist (id int, name text, album text, image_big text, artist text, duration int)')
 
     logging.info('Gathering playlist info ...')
     while True:
@@ -194,7 +194,7 @@ def show_playlist(playlist_data, reverse=True, album_infos={}):
         playlist.reverse()
 
     logging.debug('Adding songs entries to playlist DB')
-    playlist_tmpdb.executemany('INSERT INTO playlist VALUES (?,?,?,?,?,?)', playlist)
+    playlist_tmpdb.executemany(u'INSERT INTO playlist VALUES (?,?,?,?,?,?)', playlist)
     playlist_tmpdb_conn.commit()
     playlist_tmpdb_conn.close()
     logging.debug('Closed playlist DB')
