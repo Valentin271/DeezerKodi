@@ -24,12 +24,22 @@ api = Api(connection)
 
 
 def build_url(query):
-    """Used to build url to navigate in menus"""
+    """
+    Build url from `query` dict.
+    Used to build url to navigate in menus.
+
+    :param dict query: Options to add in the url
+    :return: The encoded url as str
+    """
     return base_url + '?' + urllib.urlencode(query)
 
 
 def main_menu():
-    """Return menu items"""
+    """
+    Return main menu items.
+
+    :return: xbmcgui.ListItem list
+    """
     items = [
             (build_url({'mode': 'family'}), xbmcgui.ListItem('Family'), True),
             (build_url({'mode': 'user', 'id': 'me'}), xbmcgui.ListItem('Personal'), True),
@@ -39,7 +49,11 @@ def main_menu():
 
 
 def search_menu():
-    """Return search menu items"""
+    """
+    Return search menu items.
+
+    :return: xbmcgui.ListItem list
+    """
     items = [
             (build_url({'mode': 'search', 'filter': ''}), xbmcgui.ListItem('Search all'), True),
             (build_url({'mode': 'search', 'filter': 'album'}), xbmcgui.ListItem('Search albums'), True),
