@@ -1,10 +1,29 @@
 # -*- coding: utf-8 -*-
 
 import requests
+import urllib
+import sys
 import hashlib
 import json
 import pickle
+
 import xbmc
+import xbmcgui
+import xbmcplugin
+
+
+base_url = sys.argv[0]
+
+
+def build_url(query):
+    """
+    Build url from `query` dict.
+    Used to build url to navigate in menus.
+
+    :param dict query: Options to add in the url
+    :return: The encoded url as str
+    """
+    return base_url + '?' + urllib.urlencode(query)
 
 
 class Connection(object):
@@ -417,11 +436,81 @@ class Artist(DeezerObject):
         return top
 
 
-class Search(DeezerObject):
+class Search(object):
     """
-    Deezer Search.
+    Deezer Search. List of searched item (tracks, albums, artists, ...)
     """
-    def get_listing(self):
+    def __init__(self, connection, content, type):
+        """
+        Instantiate a Search with a connection, data and a type.
+
+        :param Connection connection: Connection to the API
+        :param dict content: Object's content, as returned by the API
+        :param str type: Type of search made. May be [track, album, artist] (for now)
+        """
+        self.connection = connection
+        self.__dict__.update(content)
+        self.type = type
+
+    def display(self, addon_handle):
+        """
+        Display the results of the search according to its type.
+
+        :param int addon_handle: Handle of the addon
+        """
+        if self.type == 'track':
+            self.__display_tracks(addon_handle)
+        elif self.type == 'album':
+            self.__display_albums(addon_handle)
+        elif self.type == 'artist':
+            self.__display_artists(addon_handle)
+
+    def __display_tracks(self, addon_handle):
+        """
+        Display tracks returned by the research.
+
+        :param addon_handle: Handle of the addon
+        """
+        items = []
+
+        for tr in self.data:
+            track = Track(self.connection, tr)
+            track_album = track.get_album()
+
+            li = xbmcgui.ListItem(track.title)
+            li.setInfo('music', {
+                    'duration': track.duration,
+                    'album': track_album.title,
+                    'artist': track.get_artist().name,
+                    'title': track.title
+            })
+            li.setArt({
+                    'thumb': track_album.get_cover('big'),
+                    'icon': track_album.get_cover('small')
+            })
+
+            url = build_url({'mode': 'searched_track', 'id': track.id})
+
+            items.append((url, li))
+
+        xbmcplugin.addDirectoryItems(addon_handle, items, len(items))
+        xbmcplugin.setContent(addon_handle, 'songs')
+        xbmcplugin.endOfDirectory(addon_handle)
+
+    def __display_albums(self, addon_handle):
+        """
+        Display albums returned by the research.
+
+        :param addon_handle: Handle of the addon
+        """
+        pass
+
+    def __display_artists(self, addon_handle):
+        """
+        Display artists returned by the research.
+
+        :param addon_handle: Handle of the addon
+        """
         pass
 
 
@@ -492,4 +581,5 @@ class Api(object):
             [album, artist, history, playlist, podcast, radio, track, user]
         :return:
         """
-        self.connection.make_request('search', method=filter, parameters={'q': query})
+        result = self.connection.make_request('search', method=filter, parameters={'q': query})
+        return Search(self.connection, result, filter)

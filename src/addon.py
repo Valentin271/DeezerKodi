@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 import sys
-import urllib
 import urlparse
 
 import xbmcgui
@@ -13,7 +12,6 @@ from resources.lib.DeezerApi import *
 
 
 my_addon = xbmcaddon.Addon('plugin.audio.deezer')
-base_url = sys.argv[0]
 addon_handle = int(sys.argv[1])
 args = urlparse.parse_qs(sys.argv[2][1:])
 
@@ -21,17 +19,6 @@ addon = xbmcaddon.Addon()
 
 connection = Connection(addon.getSetting('username'), addon.getSetting('password'))
 api = Api(connection)
-
-
-def build_url(query):
-    """
-    Build url from `query` dict.
-    Used to build url to navigate in menus.
-
-    :param dict query: Options to add in the url
-    :return: The encoded url as str
-    """
-    return base_url + '?' + urllib.urlencode(query)
 
 
 def main_menu():
@@ -55,10 +42,9 @@ def search_menu():
     :return: xbmcgui.ListItem list
     """
     items = [
-            (build_url({'mode': 'search', 'filter': ''}), xbmcgui.ListItem('Search all'), True),
-            (build_url({'mode': 'search', 'filter': 'album'}), xbmcgui.ListItem('Search albums'), True),
-            (build_url({'mode': 'search', 'filter': 'artist'}), xbmcgui.ListItem('Search artists'), True),
-            (build_url({'mode': 'search', 'filter': 'track'}), xbmcgui.ListItem('Search tracks'), True)
+            (build_url({'mode': 'search', 'filt': 'track'}), xbmcgui.ListItem('Search tracks'), True),
+            # (build_url({'mode': 'search', 'filt': 'album'}), xbmcgui.ListItem('Search albums'), True),
+            # (build_url({'mode': 'search', 'filt': 'artist'}), xbmcgui.ListItem('Search artists'), True)
     ]
     return items
 
@@ -181,3 +167,27 @@ elif mode[0] == 'search-menu':
     items = search_menu()
     xbmcplugin.addDirectoryItems(addon_handle, items, len(items))
     xbmcplugin.endOfDirectory(addon_handle)
+
+
+# when the user wants to search for something
+elif mode[0] == 'search':
+    query = xbmcgui.Dialog().input('Search')
+    result = api.search(query, args['filt'][0])
+
+    result.display(addon_handle)
+
+
+# play a single track from a search
+elif mode[0] == 'searched_track':
+    url = connection.make_request_streaming(args['id'][0], 'track')
+    track = api.get_track(args['id'][0])
+
+    li = xbmcgui.ListItem()
+    li.setInfo('music', {
+            'duration': track.duration,
+            'album': track.get_album().title,
+            'artist': track.get_artist().name,
+            'title': track.title
+    })
+
+    xbmc.Player().play(url, li)
