@@ -12,7 +12,6 @@ from resources.lib.DeezerApi import *
 
 
 my_addon = xbmcaddon.Addon('plugin.audio.deezer')
-addon_handle = int(sys.argv[1])
 args = urlparse.parse_qs(sys.argv[2][1:])
 
 addon = xbmcaddon.Addon()
@@ -61,94 +60,30 @@ if mode is None:
 # display a user
 elif mode[0] == 'user':
     me = api.get_user(args['id'][0])
-
-    items = []
-
-    for play in me.get_playlists():
-        li = xbmcgui.ListItem(play.title)
-        url = build_url({'mode': 'playlist', 'id': play.id})
-
-        items.append((url, li, True))
-
-    xbmcplugin.addDirectoryItems(addon_handle, items, len(items))
-    xbmcplugin.endOfDirectory(addon_handle)
+    me.display()
 
 
 # display family profiles (actually main profile followings since API doesn't give profiles)
 elif mode[0] == 'family':
     me = api.get_user('me')
-
-    items = []
-
-    for user in me.get_followings():
-        li = xbmcgui.ListItem(user.name)
-        url = build_url({'mode': 'user', 'id': user.id})
-
-        items.append((url, li, True))
-
-    xbmcplugin.addDirectoryItems(addon_handle, items, len(items))
-    xbmcplugin.endOfDirectory(addon_handle)
+    me.display_family_profiles()
 
 
 # display a playlist
 elif mode[0] == 'playlist':
     playlist = api.get_playlist(args['id'][0])
-    playlist.save()
-
-    items = []
-
-    for track in playlist.get_tracks():
-        track_album = track.get_album()
-
-        li = xbmcgui.ListItem(track.title)
-        li.setInfo('music', {
-                'duration': track.duration,
-                'album': track_album.title,
-                'artist': track.get_artist().name,
-                'title': track.title
-        })
-        li.setArt({
-                'thumb': track_album.get_cover('big'),
-                'icon': track_album.get_cover('small')
-        })
-
-        url = build_url({'mode': 'track', 'id': track.id})
-
-        items.append((url, li))
-
-    xbmcplugin.addDirectoryItems(addon_handle, items, len(items))
-    xbmcplugin.setContent(addon_handle, 'songs')
-    xbmcplugin.endOfDirectory(addon_handle)
+    playlist.display()
 
 
 # when a track is clicked
 # add playlist to queue and play selected song
 elif mode[0] == 'track':
-    current_playlist = Playlist.load()
+    if args['container'][0] == 'playlist':
+        current_list = Playlist.load()
+    else:
+        current_list = Album.load()
 
-    xbmc.executebuiltin('Playlist.Clear')
-    playlist = xbmc.PlayList(xbmc.PLAYLIST_MUSIC)
-    startpos = 0
-
-    for pos, track in enumerate(current_playlist.get_tracks()):
-        li = xbmcgui.ListItem(track.title)
-        li.setProperty('IsPlayable', 'true')
-        li.setInfo('music', {
-                'duration': track.duration,
-                'album': track.get_album().title,
-                'artist': track.get_artist().name,
-                'title': track.title
-        })
-
-        url = build_url({'mode': 'queue_track', 'id': track.id})
-
-        # adding song (as a kodi url) to playlist
-        playlist.add(url, li)
-
-        if track.id == int(args['id'][0]):
-            startpos = pos
-
-    xbmc.Player().play(playlist, startpos=startpos)
+    current_list.queue(args['id'][0])
 
 
 # when a track in queue is selected for playing
@@ -174,20 +109,10 @@ elif mode[0] == 'search':
     query = xbmcgui.Dialog().input('Search')
     result = api.search(query, args['filt'][0])
 
-    result.display(addon_handle)
+    result.display()
 
 
 # play a single track from a search
 elif mode[0] == 'searched_track':
-    url = connection.make_request_streaming(args['id'][0], 'track')
     track = api.get_track(args['id'][0])
-
-    li = xbmcgui.ListItem()
-    li.setInfo('music', {
-            'duration': track.duration,
-            'album': track.get_album().title,
-            'artist': track.get_artist().name,
-            'title': track.title
-    })
-
-    xbmc.Player().play(url, li)
+    track.play()

@@ -12,6 +12,8 @@ import xbmcgui
 import xbmcplugin
 
 
+addon_handle = int(sys.argv[1])
+
 base_url = sys.argv[0]
 
 
@@ -271,6 +273,47 @@ class User(DeezerObject):
 
         return artists
 
+    def display(self, end=True):
+        """
+        Display User as a kodi listing.\n
+        A User consists of a list of playlist (for now).
+
+        :param bool end: Set if the method gives back focus to kodi
+            True by default
+        """
+        items = []
+
+        for play in self.get_playlists():
+            li = xbmcgui.ListItem(play.title)
+            url = build_url({'mode': 'playlist', 'id': play.id})
+
+            items.append((url, li, True))
+
+        xbmcplugin.addDirectoryItems(addon_handle, items, len(items))
+        if end:
+            xbmcplugin.endOfDirectory(addon_handle)
+
+    def display_family_profiles(self, end=True):
+        """
+        Display family profiles as a kodi listing.\n
+        API doesn't give profiles, so instead followings are displayed.
+        By default profiles are following the main account.
+
+        :param bool end: Set if the method gives back focus to kodi
+            True by default
+        """
+        items = []
+
+        for user in self.get_followings():
+            li = xbmcgui.ListItem(user.name)
+            url = build_url({'mode': 'user', 'id': user.id})
+
+            items.append((url, li, True))
+
+        xbmcplugin.addDirectoryItems(addon_handle, items, len(items))
+        if end:
+            xbmcplugin.endOfDirectory(addon_handle)
+
 
 class Playlist(DeezerObject):
     """
@@ -335,6 +378,78 @@ class Playlist(DeezerObject):
 
         return pic
 
+    def display(self, end=True):
+        """
+        Display Playlist as a kodi listing.\n
+        A Playlist consists of a list of tracks.
+
+        :param bool end: Set if the method gives back focus to kodi
+            True by default
+        """
+        self.save()
+
+        items = []
+
+        for track in self.get_tracks():
+            track_album = track.get_album()
+
+            li = xbmcgui.ListItem(track.title)
+            li.setInfo('music', {
+                    'duration': track.duration,
+                    'album': track_album.title,
+                    'artist': track.get_artist().name,
+                    'title': track.title
+            })
+            li.setArt({
+                    'thumb': track_album.get_cover('big'),
+                    'icon': track_album.get_cover('small')
+            })
+
+            url = build_url({'mode': 'track', 'id': track.id, 'container': 'playlist'})
+
+            items.append((url, li))
+
+        xbmcplugin.addDirectoryItems(addon_handle, items, len(items))
+        xbmcplugin.setContent(addon_handle, 'songs')
+        if end:
+            xbmcplugin.endOfDirectory(addon_handle)
+
+    def queue(self, startid):
+        """
+        Add the entire playlist to the queue. Then start playing at item `startpos`.
+
+        :param int startid: ID of the first item to play
+        """
+        xbmc.executebuiltin('Playlist.Clear')
+        playlist = xbmc.PlayList(xbmc.PLAYLIST_MUSIC)
+        startpos = 0
+
+        for pos, track in enumerate(self.get_tracks()):
+            track_album = track.get_album()
+
+            li = xbmcgui.ListItem(track.title)
+            li.setProperty('IsPlayable', 'true')
+            li.setInfo('music', {
+                    'duration': track.duration,
+                    'album': track.get_album().title,
+                    'artist': track.get_artist().name,
+                    'title': track.title
+            })
+            li.setArt({
+                    'thumb': track_album.get_cover('big'),
+                    'icon': track_album.get_cover('small')
+            })
+
+            url = build_url({'mode': 'queue_track', 'id': track.id})
+
+            # adding song (as a kodi url) to playlist
+            playlist.add(url, li)
+
+            if track.id == int(startid):
+                startpos = pos
+
+        xbmc.Player().play(playlist, startpos=startpos)
+
 
 class Track(DeezerObject):
     """
@@ -370,6 +485,22 @@ class Track(DeezerObject):
 
         return Track(self.connection, self.alternative)
 
+    def play(self):
+        """
+        Play a song directly, do not put it in queue.
+        """
+        url = self.connection.make_request_streaming(self.id, 'track')
+
+        li = xbmcgui.ListItem()
+        li.setInfo('music', {
+                'duration': self.duration,
+                'album': self.get_album().title,
+                'artist': self.get_artist().name,
+                'title': self.title
+        })
+
+        xbmc.Player().play(url, li)
+
 
 class Album(DeezerObject):
     """
@@ -388,6 +519,25 @@ class Album(DeezerObject):
 
         return tracks
 
+    def save(self):
+        """
+        Save album to a file in kodi special temp folder.\n
+        Used for adding album to queue without querying API again.
+        """
+        with open(xbmc.translatePath('special://temp/playlist.pickle'), 'wb') as f:
+            pickle.dump(self, f, pickle.HIGHEST_PROTOCOL)
+
+    @staticmethod
+    def load():
+        """
+        Load an Album from a file in kodi special temp folder.
+
+        :return: an Album object
+        """
+        with open(xbmc.translatePath('special://temp/playlist.pickle'), 'rb') as f:
+            cls = pickle.load(f)
+        return cls
+
     def get_cover(self, size=''):
         """
         Return the url to the cover of the album.
@@ -403,6 +553,80 @@ class Album(DeezerObject):
             cover = ''
 
         return cover
+
+    def display(self, end=True):
+        """
+        Display Album as a kodi listing.\n
+        An Album consists of a list of tracks.
+
+        :param bool end: Set if the method gives back focus to kodi
+            True by default
+        """
+        self.save()
+
+        items = []
+        thumb = self.get_cover('big')
+        icon = self.get_cover('small')
+
+        for track in self.get_tracks():
+
+            li = xbmcgui.ListItem(track.title)
+            li.setInfo('music', {
+                    'duration': track.duration,
+                    'album': self.title,
+                    'artist': track.get_artist().name,
+                    'title': track.title
+            })
+            li.setArt({
+                    'thumb': thumb,
+                    'icon': icon
+            })
+
+            url = build_url({'mode': 'track', 'id': track.id, 'container': 'album'})
+
+            items.append((url, li))
+
+        xbmcplugin.addDirectoryItems(addon_handle, items, len(items))
+        xbmcplugin.setContent(addon_handle, 'songs')
+        if end:
+            xbmcplugin.endOfDirectory(addon_handle)
+
+    def queue(self, startid):
+        """
+        Add the entire playlist to the queue. Then start playing at item `startpos`.
+
+        :param int startid: ID of the first item to play
+        """
+        xbmc.executebuiltin('Playlist.Clear')
+        playlist = xbmc.PlayList(xbmc.PLAYLIST_MUSIC)
+        startpos = 0
+
+        thumb = self.get_cover('big')
+        icon = self.get_cover('small')
+
+        for pos, track in enumerate(self.get_tracks()):
+            li = xbmcgui.ListItem(track.title)
+            li.setProperty('IsPlayable', 'true')
+            li.setInfo('music', {
+                    'duration': track.duration,
+                    'album': track.get_album().title,
+                    'artist': track.get_artist().name,
+                    'title': track.title
+            })
+            li.setArt({
+                    'thumb': thumb,
+                    'icon': icon
+            })
+
+            url = build_url({'mode': 'queue_track', 'id': track.id})
+
+            # adding song (as a kodi url) to playlist
+            playlist.add(url, li)
+
+            if track.id == int(startid):
+                startpos = pos
+
+        xbmc.Player().play(playlist, startpos=startpos)
 
 
 class Artist(DeezerObject):
@@ -452,24 +676,20 @@ class Search(object):
         self.__dict__.update(content)
         self.type = type
 
-    def display(self, addon_handle):
+    def display(self):
         """
         Display the results of the search according to its type.
-
-        :param int addon_handle: Handle of the addon
         """
         if self.type == 'track':
-            self.__display_tracks(addon_handle)
+            self.__display_tracks()
         elif self.type == 'album':
-            self.__display_albums(addon_handle)
+            self.__display_albums()
         elif self.type == 'artist':
-            self.__display_artists(addon_handle)
+            self.__display_artists()
 
-    def __display_tracks(self, addon_handle):
+    def __display_tracks(self):
         """
         Display tracks returned by the research.
-
-        :param addon_handle: Handle of the addon
         """
         items = []
 
@@ -497,19 +717,15 @@ class Search(object):
         xbmcplugin.setContent(addon_handle, 'songs')
         xbmcplugin.endOfDirectory(addon_handle)
 
-    def __display_albums(self, addon_handle):
+    def __display_albums(self):
         """
         Display albums returned by the research.
-
-        :param addon_handle: Handle of the addon
         """
         pass
 
-    def __display_artists(self, addon_handle):
+    def __display_artists(self):
         """
         Display artists returned by the research.
-
-        :param addon_handle: Handle of the addon
         """
         pass
 
