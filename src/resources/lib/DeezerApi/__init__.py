@@ -672,6 +672,48 @@ class Artist(DeezerObject):
 
         return top
 
+    def get_picture(self, size=''):
+        """
+        Return the url to the picture of the artist.
+
+        :param str size: Size of the picture, can be [small, medium, big, xl]
+        :return: The url of the picture
+        """
+        if size in ['small', 'medium', 'big', 'xl'] and hasattr(self, 'cover_'+size):
+            pic = self.__dict__['picture_'+size]
+        elif size == '' and hasattr(self, 'picture'):
+            pic = self.picture
+        else:
+            pic = ''
+
+        return pic
+
+    def display(self, end=True):
+        """
+        Display Artist as a kodi listing.\n
+        An Artist consists of a top and a list of albums (for now).
+
+        :param bool end: Set if the method gives back focus to kodi
+            True by default
+        """
+        items = []
+
+        for album in self.get_albums():
+            li = xbmcgui.ListItem(album.title)
+            li.setArt({
+                    'thumb': album.get_cover('big'),
+                    'icon': album.get_cover('small')
+            })
+
+            url = build_url({'mode': 'album', 'id': album.id})
+
+            items.append((url, li, True))
+
+        xbmcplugin.addDirectoryItems(addon_handle, items, len(items))
+        xbmcplugin.setContent(addon_handle, 'artists')
+        if end:
+            xbmcplugin.endOfDirectory(addon_handle)
+
 
 class Search(object):
     """
@@ -758,7 +800,24 @@ class Search(object):
         """
         Display artists returned by the research.
         """
-        pass
+        items = []
+
+        for ar in self.data:
+            artist = Artist(self.connection, ar)
+
+            li = xbmcgui.ListItem(artist.name)
+            li.setArt({
+                    'thumb': artist.get_picture('big'),
+                    'icon': artist.get_picture('small')
+            })
+
+            url = build_url({'mode': 'artist', 'id': artist.id})
+
+            items.append((url, li, True))
+
+        xbmcplugin.addDirectoryItems(addon_handle, items, len(items))
+        xbmcplugin.setContent(addon_handle, 'albums')
+        xbmcplugin.endOfDirectory(addon_handle)
 
 
 class Api(object):
@@ -818,10 +877,9 @@ class Api(object):
         """
         return Artist(self.connection, self.connection.make_request('artist', id))
 
-    def search(self, query, filter=""):
+    def search(self, query, filter):
         """
-        Search for `query`. Possibly add filter to search by track, album, ...
-        TODO: Complete method and documentation
+        Search for `query`. Add filter to search by track, album, ...
 
         :param str query: The text to search
         :param str filter: Type of object to search. May be one of
