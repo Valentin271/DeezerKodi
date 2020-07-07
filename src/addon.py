@@ -42,7 +42,7 @@ def search_menu():
     """
     items = [
             (build_url({'mode': 'search', 'filt': 'track'}), xbmcgui.ListItem('Search tracks'), True),
-            # (build_url({'mode': 'search', 'filt': 'album'}), xbmcgui.ListItem('Search albums'), True),
+            (build_url({'mode': 'search', 'filt': 'album'}), xbmcgui.ListItem('Search albums'), True),
             # (build_url({'mode': 'search', 'filt': 'artist'}), xbmcgui.ListItem('Search artists'), True)
     ]
     return items
@@ -116,3 +116,7 @@ elif mode[0] == 'search':
 elif mode[0] == 'searched_track':
     track = api.get_track(args['id'][0])
     track.play()
+
+elif mode[0] == 'album':
+    album = api.get_album(args['id'][0])
+    album.display()

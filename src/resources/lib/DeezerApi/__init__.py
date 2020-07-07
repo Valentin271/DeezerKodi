@@ -398,7 +398,8 @@ class Playlist(DeezerObject):
                     'duration': track.duration,
                     'album': track_album.title,
                     'artist': track.get_artist().name,
-                    'title': track.title
+                    'title': track.title,
+                    'mediatype': 'song'
             })
             li.setArt({
                     'thumb': track_album.get_cover('big'),
@@ -433,7 +434,8 @@ class Playlist(DeezerObject):
                     'duration': track.duration,
                     'album': track.get_album().title,
                     'artist': track.get_artist().name,
-                    'title': track.title
+                    'title': track.title,
+                    'mediatype': 'song'
             })
             li.setArt({
                     'thumb': track_album.get_cover('big'),
@@ -496,7 +498,8 @@ class Track(DeezerObject):
                 'duration': self.duration,
                 'album': self.get_album().title,
                 'artist': self.get_artist().name,
-                'title': self.title
+                'title': self.title,
+                'mediatype': 'song'
         })
 
         xbmc.Player().play(url, li)
@@ -518,6 +521,14 @@ class Album(DeezerObject):
             tracks.append(Track(self.connection, track))
 
         return tracks
+
+    def get_artist(self):
+        """
+        Return the artist of this album.
+
+        :return: An Artist object
+        """
+        return Artist(self.connection, self.artist)
 
     def save(self):
         """
@@ -575,7 +586,8 @@ class Album(DeezerObject):
                     'duration': track.duration,
                     'album': self.title,
                     'artist': track.get_artist().name,
-                    'title': track.title
+                    'title': track.title,
+                    'mediatype': 'song'
             })
             li.setArt({
                     'thumb': thumb,
@@ -611,7 +623,8 @@ class Album(DeezerObject):
                     'duration': track.duration,
                     'album': track.get_album().title,
                     'artist': track.get_artist().name,
-                    'title': track.title
+                    'title': track.title,
+                    'mediatype': 'song'
             })
             li.setArt({
                     'thumb': thumb,
@@ -702,7 +715,8 @@ class Search(object):
                     'duration': track.duration,
                     'album': track_album.title,
                     'artist': track.get_artist().name,
-                    'title': track.title
+                    'title': track.title,
+                    'mediatype': 'song'
             })
             li.setArt({
                     'thumb': track_album.get_cover('big'),
@@ -721,7 +735,24 @@ class Search(object):
         """
         Display albums returned by the research.
         """
-        pass
+        items = []
+
+        for al in self.data:
+            album = Album(self.connection, al)
+
+            li = xbmcgui.ListItem(album.title)
+            li.setArt({
+                    'thumb': album.get_cover('big'),
+                    'icon': album.get_cover('small')
+            })
+
+            url = build_url({'mode': 'album', 'id': album.id})
+
+            items.append((url, li, True))
+
+        xbmcplugin.addDirectoryItems(addon_handle, items, len(items))
+        xbmcplugin.setContent(addon_handle, 'albums')
+        xbmcplugin.endOfDirectory(addon_handle)
 
     def __display_artists(self):
         """
