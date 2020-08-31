@@ -25,6 +25,10 @@ def build_url(query):
     :param dict query: Options to add in the url
     :return: The encoded url as str
     """
+    for k, v in query.items():
+        if type(v) == unicode:
+            query[k] = v.encode('utf-8')
+
     return base_url + '?' + urllib.urlencode(query)
 
 
