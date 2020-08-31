@@ -37,6 +37,10 @@ connection = dzapi.Connection(addon.getSetting('username'), addon.getSetting('pa
 
 def build_url(query):
     """Used to build url to navigate in menus"""
+    for k, v in query.items():
+        if type(v) == unicode:
+            query[k] = v.encode('utf-8')
+
     return base_url + '?' + urllib.urlencode(query)
 
 
