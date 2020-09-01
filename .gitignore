@@ -3,4 +3,6 @@
 *.pyc
 __pycache__
 
+debug
 api_test.py
+TODO
