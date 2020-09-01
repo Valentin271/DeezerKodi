@@ -345,6 +345,7 @@ class Playlist(DeezerObject):
         if 'next' in tracks_data:
             tracks += self.get_tracks(tracks_data['next'])
 
+        tracks.reverse()
         return tracks
 
     def save(self):
