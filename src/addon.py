@@ -9,14 +9,29 @@ import xbmcplugin
 import xbmcaddon
 
 from resources.lib.DeezerApi import Connection, Api, build_url, addon_handle, Playlist, Album
+from resources.lib.deezer_exception import QuotaException
 
 
 # Initializing addon
 addon = xbmcaddon.Addon('plugin.audio.deezer')
 args = urlparse.parse_qs(sys.argv[2][1:])
 
-# Initializing connection and API
-connection = Connection(addon.getSetting('username'), addon.getSetting('password'))
+
+connection = None
+# Trying to get token from file
+try:
+    connection = Connection.load()
+except IOError:
+    xbmc.log("DeezerKodi: Failed to get token from file, trying API request instead", xbmc.LOGWARNING)
+
+    # If file does not exist, try to get token from API
+    try:
+        connection = Connection(addon.getSetting('username'), addon.getSetting('password'))
+    except QuotaException:
+        xbmc.log("DeezerKodi: Cannot get token from API", xbmc.LOGERROR)
+        xbmcgui.Dialog().ok("Error", "Quota limit exceeded, please wait and retry.")
+        exit()
+
 api = Api(connection)
 
 
@@ -142,3 +157,6 @@ elif mode[0] == 'artist':
     xbmc.log("DeezerKodi: Mode 'artist'", xbmc.LOGINFO)
     artist = api.get_artist(args['id'][0])
     artist.display()
+
+# Saving connection with token for next time
+connection.save()

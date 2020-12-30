@@ -74,6 +74,30 @@ class Connection(object):
         md5.update(password.encode('utf-8'))
         self._password = md5.hexdigest()
 
+    def save(self):
+        """
+        Save the connection to a file in kodi special temp folder.
+        """
+        path = xbmc.translatePath('special://temp/connection.pickle')
+        xbmc.log("DeezerKodi: Connection: Saving connection to file {}".format(path), xbmc.LOGDEBUG)
+
+        with open(path, 'wb') as f:
+            pickle.dump(self, f, pickle.HIGHEST_PROTOCOL)
+
+    @staticmethod
+    def load():
+        """
+        Load a connection from a file in kodi special temp folder.
+
+        :return: a Connection object
+        """
+        path = xbmc.translatePath('special://temp/connection.pickle')
+        xbmc.log("DeezerKodi: Connection: Getting connection from file {}".format(path), xbmc.LOGDEBUG)
+
+        with open(path, 'rb') as f:
+            cls = pickle.load(f)
+        return cls
+
     def _obtain_access_token(self):
         """
         Obtain access token by pretending to be a smart tv.
@@ -92,7 +116,7 @@ class Connection(object):
         if 'access_token' in response:
             self._access_token = response['access_token']
         else:
-            if 'error' in response:
+            if 'error' in response and response['error']['code'] == QuotaException.CODE:
                 raise QuotaException(response['error']['message'])
             else:
                 raise DeezerException("Could not obtain access token!")

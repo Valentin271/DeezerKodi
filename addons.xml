@@ -22,7 +22,10 @@
         <disclaimer lang="en">This addon was not provided by Deezer.</disclaimer>
 	    <news>
 [v0.1.1]
+- Added information dialog if DeezerKodi cannot connect to Deezer
+- Fixed a bug that prevented loading folders or track and causing DeezerKodi to crash (#3 on github)
 - Addon now logs informations into kodi.log file
+- Slight speed improvement while loading folders
 
 [v0.1.0]
 - Main profile now accessible for family account
