@@ -49,6 +49,7 @@ class Connection(object):
         :param str username: The user's name
         :param str password: The user's password
         """
+        xbmc.log('DeezerKodi: Creating new connection ...', xbmc.LOGDEBUG)
         self._username = self._password = self._access_token = None
         self.set_username(username)
         self.set_password(password)
@@ -78,8 +79,9 @@ class Connection(object):
 
         :raise Exception: In case of error returned by the API
         """
+        xbmc.log('DeezerKodi: Getting access token ...', xbmc.LOGDEBUG)
         if self._username is None or self._password is None:
-            raise Exception("Username and password is required!")
+            raise Exception("Username and password are required!")
         r = requests.get(self._API_AUTH_URL, params={
                 'login': self._username,
                 'password': self._password,
@@ -110,8 +112,9 @@ class Connection(object):
 
     def make_request(self, service, id='', method='', parameters={}):
         """
-        Make request to the API and return response as a dict.
-        Parameters names are same as described in the Deezer API documentation (https://developers.deezer.com/api).
+        Make request to the API and return response as a dict.\n
+        Parameters names are the same as described in
+        the Deezer API documentation (https://developers.deezer.com/api).
 
         :param str service:     The service to request
         :param str id:          Item's ID in the service
@@ -119,6 +122,11 @@ class Connection(object):
         :param dict parameters: Additional parameters at the end
         :return:                JSON response as dict
         """
+        xbmc.log(
+            'DeezerKodi: Requesting {} ...'.format('/'.join([str(service), str(id), str(method)])),
+            xbmc.LOGDEBUG
+        )
+
         base_url = self._API_BASE_URL.format(service=service, id=id, method=method)
         r = requests.get(base_url, params=self._merge_two_dicts(
                 {'output': 'json', 'access_token': self._access_token}, parameters
@@ -133,6 +141,7 @@ class Connection(object):
         :param str url: Url to query
         :return: JSON response as dict
         """
+        xbmc.log('DeezerKodi: Making custom request ...', xbmc.LOGDEBUG)
         r = requests.get(url)
         return json.loads(r.text)
 
@@ -144,6 +153,10 @@ class Connection(object):
         :param str type: Type of the requested item
         :return: Dict if type is radio or artist, str otherwise
         """
+        xbmc.log(
+            'DeezerKodi: Requesting streaming for {type} with id {id} ...'.format(type=type, id=id),
+            xbmc.LOGINFO
+        )
         r = requests.get(self._API_BASE_STREAMING_URL, params={
                 'access_token': self._access_token,
                 ("%s_id" % type): id,
@@ -184,6 +197,8 @@ class User(DeezerObject):
 
         :return: A list of Playlist
         """
+        xbmc.log("DeezerKodi: Getting user's playlists", xbmc.LOGDEBUG)
+
         playlists = []
         playlists_data = self.connection.make_request('user', self.id, 'playlists')
 
@@ -199,6 +214,8 @@ class User(DeezerObject):
 
         :return: A list of User
         """
+        xbmc.log("DeezerKodi: Getting user's followings", xbmc.LOGDEBUG)
+
         followings = []
         friends = self.connection.make_request('user', self.id, 'followings')
 
@@ -213,6 +230,8 @@ class User(DeezerObject):
 
         :return: A list of Track
         """
+        xbmc.log("DeezerKodi: Getting user's flow", xbmc.LOGDEBUG)
+
         flow = []
         flow_data = self.connection.make_request('user', self.id, 'flow')
 
@@ -227,6 +246,8 @@ class User(DeezerObject):
 
         :return: A list of Track
         """
+        xbmc.log("DeezerKodi: Getting user's history", xbmc.LOGDEBUG)
+
         history = []
         history_data = self.connection.make_request('user', self.id, 'history')
 
@@ -241,6 +262,8 @@ class User(DeezerObject):
 
         :return: A list of Track
         """
+        xbmc.log("DeezerKodi: Getting user's recommended tracks", xbmc.LOGDEBUG)
+
         tracks = []
         tracks_data = self.connection.make_request('user', self.id, 'recommendations/tracks')
 
@@ -255,6 +278,8 @@ class User(DeezerObject):
 
         :return: A list of Playlist
         """
+        xbmc.log("DeezerKodi: Getting user's recommended playlists", xbmc.LOGDEBUG)
+
         playlists = []
         playlist_data = self.connection.make_request('user', self.id, 'recommendations/playlists')
 
@@ -269,6 +294,8 @@ class User(DeezerObject):
 
         :return: A list of Artist
         """
+        xbmc.log("DeezerKodi: Getting user's recommended artists", xbmc.LOGDEBUG)
+
         artists = []
         artists_data = self.connection.make_request('user', self.id, 'recommendations/artists')
 
@@ -285,6 +312,8 @@ class User(DeezerObject):
         :param bool end: Set if the method gives back focus to kodi
             True by default
         """
+        xbmc.log("DeezerKodi: Displaying user ...", xbmc.LOGDEBUG)
+
         items = []
 
         for play in self.get_playlists():
@@ -296,6 +325,7 @@ class User(DeezerObject):
         xbmcplugin.addDirectoryItems(addon_handle, items, len(items))
         if end:
             xbmcplugin.endOfDirectory(addon_handle)
+            xbmc.log("DeezerKodi: End of user display", xbmc.LOGDEBUG)
 
     def display_family_profiles(self, end=True):
         """
@@ -306,6 +336,8 @@ class User(DeezerObject):
         :param bool end: Set if the method gives back focus to kodi
             True by default
         """
+        xbmc.log("DeezerKodi: Displaying family profiles ...", xbmc.LOGDEBUG)
+
         items = []
 
         for user in self.get_followings():
@@ -317,6 +349,7 @@ class User(DeezerObject):
         xbmcplugin.addDirectoryItems(addon_handle, items, len(items))
         if end:
             xbmcplugin.endOfDirectory(addon_handle)
+            xbmc.log("DeezerKodi: End of family profile display", xbmc.LOGDEBUG)
 
 
 class Playlist(DeezerObject):
@@ -330,6 +363,8 @@ class Playlist(DeezerObject):
         :param str next_url: Url of the next part of the playlist, used for recursion. Shouldn't be used otherwise.
         :return: A list of Track
         """
+        xbmc.log("DeezerKodi: Getting playlist's tracks", xbmc.LOGDEBUG)
+
         tracks = []
 
         if next_url is not None:
@@ -353,7 +388,10 @@ class Playlist(DeezerObject):
         Save the playlist to a file in kodi special temp folder.\n
         Used for adding playlist to queue without querying API again.
         """
-        with open(xbmc.translatePath('special://temp/playlist.pickle'), 'wb') as f:
+        path = xbmc.translatePath('special://temp/playlist.pickle')
+        xbmc.log("DeezerKodi: Saving playlist to file {}".format(path), xbmc.LOGDEBUG)
+
+        with open(path, 'wb') as f:
             pickle.dump(self, f, pickle.HIGHEST_PROTOCOL)
 
     @staticmethod
@@ -363,7 +401,10 @@ class Playlist(DeezerObject):
 
         :return: a Playlist object
         """
-        with open(xbmc.translatePath('special://temp/playlist.pickle'), 'rb') as f:
+        path = xbmc.translatePath('special://temp/playlist.pickle')
+        xbmc.log("DeezerKodi: Getting playlist from file {}".format(path), xbmc.LOGDEBUG)
+
+        with open(path, 'rb') as f:
             cls = pickle.load(f)
         return cls
 
@@ -374,7 +415,9 @@ class Playlist(DeezerObject):
         :param str size: Size of the picture, can be [small, medium, big, xl]
         :return: The url of the picture
         """
-        if size in ['small', 'medium', 'big', 'xl'] and hasattr(self, 'cover_'+size):
+        xbmc.log("DeezerKodi: Trying to get playlist picture in size {}".format(size), xbmc.LOGDEBUG)
+
+        if size in ['small', 'medium', 'big', 'xl'] and hasattr(self, 'picture_'+size):
             pic = self.__dict__['picture_'+size]
         elif size == '' and hasattr(self, 'picture'):
             pic = self.picture
@@ -391,6 +434,7 @@ class Playlist(DeezerObject):
         :param bool end: Set if the method gives back focus to kodi
             True by default
         """
+        xbmc.log("DeezerKodi: Displaying playlist ...", xbmc.LOGDEBUG)
         self.save()
 
         items = []
@@ -419,13 +463,19 @@ class Playlist(DeezerObject):
         xbmcplugin.setContent(addon_handle, 'songs')
         if end:
             xbmcplugin.endOfDirectory(addon_handle)
+            xbmc.log("DeezerKodi: End of playlist display", xbmc.LOGDEBUG)
 
     def queue(self, startid):
         """
-        Add the entire playlist to the queue. Then start playing at item `startpos`.
+        Add the entire playlist to the queue. Then start playing at item `startid`.
 
         :param int startid: ID of the first item to play
         """
+        xbmc.log(
+            "DeezerKodi: Adding playlist to queue starting with track id {}".format(startid),
+            xbmc.LOGDEBUG
+        )
+
         xbmc.executebuiltin('Playlist.Clear')
         playlist = xbmc.PlayList(xbmc.PLAYLIST_MUSIC)
         startpos = 0
@@ -455,6 +505,7 @@ class Playlist(DeezerObject):
             if track.id == int(startid):
                 startpos = pos
 
+        xbmc.log("DeezerKodi: Starting queued playlist at index {}".format(startpos), xbmc.LOGDEBUG)
         xbmc.Player().play(playlist, startpos=startpos)
 
 
@@ -468,6 +519,7 @@ class Track(DeezerObject):
 
         :return: Album object
         """
+        xbmc.log("DeezerKodi: Getting album of track id " + self.id, xbmc.LOGDEBUG)
         if not hasattr(self, 'album'):
             self._update_data()
 
@@ -479,6 +531,7 @@ class Track(DeezerObject):
 
         :return: Artist object
         """
+        xbmc.log("DeezerKodi: Getting artist of track id " + self.id, xbmc.LOGDEBUG)
         return Artist(self.connection, self.artist)
 
     def get_alternative(self):
@@ -487,6 +540,7 @@ class Track(DeezerObject):
 
         :return: Track object
         """
+        xbmc.log("DeezerKodi: Getting alternative songs of track id " + self.id, xbmc.LOGDEBUG)
         if not hasattr(self, 'alternative'):
             self._update_data()
 
@@ -496,6 +550,7 @@ class Track(DeezerObject):
         """
         Play a song directly, do not put it in queue.
         """
+        xbmc.log("DeezerKodi: Starting to play track id " + self.id, xbmc.LOGDEBUG)
         url = self.connection.make_request_streaming(self.id, 'track')
 
         li = xbmcgui.ListItem()
@@ -520,6 +575,7 @@ class Album(DeezerObject):
 
         :return: List of Track
         """
+        xbmc.log("DeezerKodi: Getting tracks of album id " + self.id, xbmc.LOGDEBUG)
         tracks = []
 
         for track in self.tracks['data']:
@@ -533,6 +589,7 @@ class Album(DeezerObject):
 
         :return: An Artist object
         """
+        xbmc.log("DeezerKodi: Getting artist of album id " + self.id, xbmc.LOGDEBUG)
         return Artist(self.connection, self.artist)
 
     def save(self):
@@ -540,7 +597,10 @@ class Album(DeezerObject):
         Save album to a file in kodi special temp folder.\n
         Used for adding album to queue without querying API again.
         """
-        with open(xbmc.translatePath('special://temp/playlist.pickle'), 'wb') as f:
+        path = xbmc.translatePath("special://temp/playlist.pickle")
+        xbmc.log("DeezerKodi: Saving album to file " + path, xbmc.LOGDEBUG)
+
+        with open(path, 'wb') as f:
             pickle.dump(self, f, pickle.HIGHEST_PROTOCOL)
 
     @staticmethod
@@ -550,7 +610,10 @@ class Album(DeezerObject):
 
         :return: an Album object
         """
-        with open(xbmc.translatePath('special://temp/playlist.pickle'), 'rb') as f:
+        path = xbmc.translatePath("special://temp/playlist.pickle")
+        xbmc.log("DeezerKodi: Loading album from file " + path, xbmc.LOGDEBUG)
+
+        with open(path, 'rb') as f:
             cls = pickle.load(f)
         return cls
 
@@ -561,6 +624,8 @@ class Album(DeezerObject):
         :param str size: Size of the cover, can be [small, medium, big, xl]
         :return: The url of the cover
         """
+        xbmc.log("DeezerKodi: Trying to get album cover of size " + size, xbmc.LOGDEBUG)
+
         if size in ['small', 'medium', 'big', 'xl'] and hasattr(self, 'cover_'+size):
             cover = self.__dict__['cover_'+size]
         elif size == '' and hasattr(self, 'cover'):
@@ -578,6 +643,7 @@ class Album(DeezerObject):
         :param bool end: Set if the method gives back focus to kodi
             True by default
         """
+        xbmc.log("DeezerKodi: Displaying album ...", xbmc.LOGDEBUG)
         self.save()
 
         items = []
@@ -605,15 +671,19 @@ class Album(DeezerObject):
 
         xbmcplugin.addDirectoryItems(addon_handle, items, len(items))
         xbmcplugin.setContent(addon_handle, 'songs')
+
         if end:
             xbmcplugin.endOfDirectory(addon_handle)
+            xbmc.log("DeezerKodi: End of album display", xbmc.LOGDEBUG)
 
     def queue(self, startid):
         """
-        Add the entire playlist to the queue. Then start playing at item `startpos`.
+        Add the entire playlist to the queue. Then start playing at item `startid`.
 
         :param int startid: ID of the first item to play
         """
+        xbmc.log("DeezerKodi: Queuing album ...", xbmc.LOGDEBUG)
+
         xbmc.executebuiltin('Playlist.Clear')
         playlist = xbmc.PlayList(xbmc.PLAYLIST_MUSIC)
         startpos = 0
@@ -644,6 +714,7 @@ class Album(DeezerObject):
             if track.id == int(startid):
                 startpos = pos
 
+        xbmc.log("DeezerKodi: Starting to play album at track " + startpos, xbmc.LOGDEBUG)
         xbmc.Player().play(playlist, startpos=startpos)
 
 
@@ -657,6 +728,7 @@ class Artist(DeezerObject):
 
         :return: List of Album
         """
+        xbmc.log("DeezerKodi: Getting albums of artist id " + self.id, xbmc.LOGDEBUG)
         albums = []
 
         for a in self.connection.make_request('artist', self.id, 'albums')['data']:
@@ -670,6 +742,7 @@ class Artist(DeezerObject):
 
         :return: List of Track
         """
+        xbmc.log("DeezerKodi: Getting top tracks of artist id " + self.id, xbmc.LOGDEBUG)
         top = []
 
         for track in self.connection.make_request('artist', self.id, 'top')['data']:
@@ -684,7 +757,12 @@ class Artist(DeezerObject):
         :param str size: Size of the picture, can be [small, medium, big, xl]
         :return: The url of the picture
         """
-        if size in ['small', 'medium', 'big', 'xl'] and hasattr(self, 'cover_'+size):
+        xbmc.log(
+            "DeezerKodi: Trying to get picture of artist id {id} with size {size}".format(id=self.id, size=size),
+            xbmc.LOGDEBUG
+        )
+
+        if size in ['small', 'medium', 'big', 'xl'] and hasattr(self, 'picture_'+size):
             pic = self.__dict__['picture_'+size]
         elif size == '' and hasattr(self, 'picture'):
             pic = self.picture
@@ -701,6 +779,7 @@ class Artist(DeezerObject):
         :param bool end: Set if the method gives back focus to kodi
             True by default
         """
+        xbmc.log("DeezerKodi: Displaying artist ...", xbmc.LOGDEBUG)
         items = []
 
         for album in self.get_albums():
@@ -718,39 +797,46 @@ class Artist(DeezerObject):
         xbmcplugin.setContent(addon_handle, 'artists')
         if end:
             xbmcplugin.endOfDirectory(addon_handle)
+            xbmc.log("DeezerKodi: End of artist display", xbmc.LOGDEBUG)
 
 
 class Search(object):
     """
     Deezer Search. List of searched item (tracks, albums, artists, ...)
     """
-    def __init__(self, connection, content, type):
+    def __init__(self, connection, content, search_type):
         """
-        Instantiate a Search with a connection, data and a type.
+        Instantiate a Search with a connection, data and a search type.
 
         :param Connection connection: Connection to the API
         :param dict content: Object's content, as returned by the API
-        :param str type: Type of search made. May be [track, album, artist] (for now)
+        :param str search_type: Type of search made. May be [track, album, artist] (for now)
         """
+        xbmc.log("DeezerKodi: Creating a search of type " + search_type, xbmc.LOGDEBUG)
         self.connection = connection
         self.__dict__.update(content)
-        self.type = type
+        self.search_type = search_type
 
     def display(self):
         """
         Display the results of the search according to its type.
         """
-        if self.type == 'track':
+        if self.search_type == 'track':
             self.__display_tracks()
-        elif self.type == 'album':
+
+        elif self.search_type == 'album':
             self.__display_albums()
-        elif self.type == 'artist':
+
+        elif self.search_type == 'artist':
             self.__display_artists()
+
+        raise Exception("Invalid search type, cannot display result")
 
     def __display_tracks(self):
         """
         Display tracks returned by the research.
         """
+        xbmc.log("DeezerKodi: Displaying tracks search result ...", xbmc.LOGDEBUG)
         items = []
 
         for tr in self.data:
@@ -777,11 +863,13 @@ class Search(object):
         xbmcplugin.addDirectoryItems(addon_handle, items, len(items))
         xbmcplugin.setContent(addon_handle, 'songs')
         xbmcplugin.endOfDirectory(addon_handle)
+        xbmc.log("DeezerKodi: End of tracks search result display", xbmc.LOGDEBUG)
 
     def __display_albums(self):
         """
         Display albums returned by the research.
         """
+        xbmc.log("DeezerKodi: Displaying albums search result ...", xbmc.LOGDEBUG)
         items = []
 
         for al in self.data:
@@ -800,11 +888,13 @@ class Search(object):
         xbmcplugin.addDirectoryItems(addon_handle, items, len(items))
         xbmcplugin.setContent(addon_handle, 'albums')
         xbmcplugin.endOfDirectory(addon_handle)
+        xbmc.log("DeezerKodi: End of albums search result display", xbmc.LOGDEBUG)
 
     def __display_artists(self):
         """
         Display artists returned by the research.
         """
+        xbmc.log("DeezerKodi: Displaying artists search result ...", xbmc.LOGDEBUG)
         items = []
 
         for ar in self.data:
@@ -823,6 +913,7 @@ class Search(object):
         xbmcplugin.addDirectoryItems(addon_handle, items, len(items))
         xbmcplugin.setContent(addon_handle, 'albums')
         xbmcplugin.endOfDirectory(addon_handle)
+        xbmc.log("DeezerKodi: End of artists search result display", xbmc.LOGDEBUG)
 
 
 class Api(object):
@@ -835,6 +926,7 @@ class Api(object):
 
         :param Connection connection: A Connection to Deezer
         """
+        xbmc.log("DeezerKodi: Creating API instance", xbmc.LOGDEBUG)
         self.connection = connection
 
     def get_user(self, id):
@@ -844,6 +936,7 @@ class Api(object):
         :param str id: ID of the user
         :return: A User
         """
+        xbmc.log("DeezerKodi: Getting user id {} from API".format(id), xbmc.LOGDEBUG)
         return User(self.connection, self.connection.make_request('user', id))
 
     def get_playlist(self, id):
@@ -853,6 +946,7 @@ class Api(object):
         :param int id: ID of the playlist
         :return: A Playlist
         """
+        xbmc.log("DeezerKodi: Getting playlist id {} from API".format(id), xbmc.LOGDEBUG)
         return Playlist(self.connection, self.connection.make_request('playlist', id))
 
     def get_track(self, id):
@@ -862,6 +956,7 @@ class Api(object):
         :param int id: ID of the track
         :return: A Track
         """
+        xbmc.log("DeezerKodi: Getting track id {} from API".format(id), xbmc.LOGDEBUG)
         return Track(self.connection, self.connection.make_request('track', id))
 
     def get_album(self, id):
@@ -871,6 +966,7 @@ class Api(object):
         :param int id: ID of the album
         :return: An Album
         """
+        xbmc.log("DeezerKodi: Getting album id {} from API".format(id), xbmc.LOGDEBUG)
         return Album(self.connection, self.connection.make_request('album', id))
 
     def get_artist(self, id):
@@ -880,6 +976,7 @@ class Api(object):
         :param int id: ID of the artist
         :return: An Artist
         """
+        xbmc.log("DeezerKodi: Getting artist id {} from API".format(id), xbmc.LOGDEBUG)
         return Artist(self.connection, self.connection.make_request('artist', id))
 
     def search(self, query, filter):
@@ -891,5 +988,9 @@ class Api(object):
             [album, artist, history, playlist, podcast, radio, track, user]
         :return:
         """
+        xbmc.log(
+            "DeezerKodi: Searching {query} with filter {filter}".format(query=query, filter=filter),
+            xbmc.LOGDEBUG
+        )
         result = self.connection.make_request('search', method=filter, parameters={'q': query})
         return Search(self.connection, result, filter)
