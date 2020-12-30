@@ -11,6 +11,7 @@ import xbmc
 import xbmcgui
 import xbmcplugin
 
+from resources.lib.deezer_exception import *
 
 addon_handle = int(sys.argv[1])
 
@@ -92,10 +93,9 @@ class Connection(object):
             self._access_token = response['access_token']
         else:
             if 'error' in response:
-                error = response['error']
-                raise Exception(error['message'])
+                raise QuotaException(response['error']['message'])
             else:
-                raise Exception("Could not obtain access token!")
+                raise DeezerException("Could not obtain access token!")
 
     @staticmethod
     def _merge_two_dicts(x, y):
