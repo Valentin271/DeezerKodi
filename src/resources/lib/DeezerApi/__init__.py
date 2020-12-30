@@ -49,7 +49,7 @@ class Connection(object):
         :param str username: The user's name
         :param str password: The user's password
         """
-        xbmc.log('DeezerKodi: Creating new connection ...', xbmc.LOGDEBUG)
+        xbmc.log('DeezerKodi: Connection: Creating new connection ...', xbmc.LOGDEBUG)
         self._username = self._password = self._access_token = None
         self.set_username(username)
         self.set_password(password)
@@ -79,7 +79,7 @@ class Connection(object):
 
         :raise Exception: In case of error returned by the API
         """
-        xbmc.log('DeezerKodi: Getting access token ...', xbmc.LOGDEBUG)
+        xbmc.log('DeezerKodi: Connection: Getting access token ...', xbmc.LOGDEBUG)
         if self._username is None or self._password is None:
             raise Exception("Username and password are required!")
         r = requests.get(self._API_AUTH_URL, params={
@@ -123,7 +123,7 @@ class Connection(object):
         :return:                JSON response as dict
         """
         xbmc.log(
-            'DeezerKodi: Requesting {} ...'.format('/'.join([str(service), str(id), str(method)])),
+            'DeezerKodi: Connection: Requesting {} ...'.format('/'.join([str(service), str(id), str(method)])),
             xbmc.LOGDEBUG
         )
 
@@ -141,7 +141,7 @@ class Connection(object):
         :param str url: Url to query
         :return: JSON response as dict
         """
-        xbmc.log('DeezerKodi: Making custom request ...', xbmc.LOGDEBUG)
+        xbmc.log('DeezerKodi: Connection: Making custom request ...', xbmc.LOGDEBUG)
         r = requests.get(url)
         return json.loads(r.text)
 
@@ -154,7 +154,7 @@ class Connection(object):
         :return: Dict if type is radio or artist, str otherwise
         """
         xbmc.log(
-            'DeezerKodi: Requesting streaming for {type} with id {id} ...'.format(type=type, id=id),
+            'DeezerKodi: Connection: Requesting streaming for {type} with id {id} ...'.format(type=type, id=id),
             xbmc.LOGINFO
         )
         r = requests.get(self._API_BASE_STREAMING_URL, params={
@@ -519,7 +519,7 @@ class Track(DeezerObject):
 
         :return: Album object
         """
-        xbmc.log("DeezerKodi: Getting album of track id " + self.id, xbmc.LOGDEBUG)
+        xbmc.log("DeezerKodi: Getting album of track id {}".format(self.id), xbmc.LOGDEBUG)
         if not hasattr(self, 'album'):
             self._update_data()
 
@@ -531,7 +531,7 @@ class Track(DeezerObject):
 
         :return: Artist object
         """
-        xbmc.log("DeezerKodi: Getting artist of track id " + self.id, xbmc.LOGDEBUG)
+        xbmc.log("DeezerKodi: Getting artist of track id {}".format(self.id), xbmc.LOGDEBUG)
         return Artist(self.connection, self.artist)
 
     def get_alternative(self):
@@ -540,7 +540,7 @@ class Track(DeezerObject):
 
         :return: Track object
         """
-        xbmc.log("DeezerKodi: Getting alternative songs of track id " + self.id, xbmc.LOGDEBUG)
+        xbmc.log("DeezerKodi: Getting alternative songs of track id {}".format(self.id), xbmc.LOGDEBUG)
         if not hasattr(self, 'alternative'):
             self._update_data()
 
@@ -550,7 +550,7 @@ class Track(DeezerObject):
         """
         Play a song directly, do not put it in queue.
         """
-        xbmc.log("DeezerKodi: Starting to play track id " + self.id, xbmc.LOGDEBUG)
+        xbmc.log("DeezerKodi: Starting to play track id {}".format(self.id), xbmc.LOGDEBUG)
         url = self.connection.make_request_streaming(self.id, 'track')
 
         li = xbmcgui.ListItem()
@@ -575,7 +575,7 @@ class Album(DeezerObject):
 
         :return: List of Track
         """
-        xbmc.log("DeezerKodi: Getting tracks of album id " + self.id, xbmc.LOGDEBUG)
+        xbmc.log("DeezerKodi: Getting tracks of album id {}".format(), xbmc.LOGDEBUG)
         tracks = []
 
         for track in self.tracks['data']:
@@ -589,7 +589,7 @@ class Album(DeezerObject):
 
         :return: An Artist object
         """
-        xbmc.log("DeezerKodi: Getting artist of album id " + self.id, xbmc.LOGDEBUG)
+        xbmc.log("DeezerKodi: Getting artist of album id {}".format(self.id), xbmc.LOGDEBUG)
         return Artist(self.connection, self.artist)
 
     def save(self):
@@ -714,7 +714,7 @@ class Album(DeezerObject):
             if track.id == int(startid):
                 startpos = pos
 
-        xbmc.log("DeezerKodi: Starting to play album at track " + startpos, xbmc.LOGDEBUG)
+        xbmc.log("DeezerKodi: Starting to play album at track {}".format(startpos), xbmc.LOGDEBUG)
         xbmc.Player().play(playlist, startpos=startpos)
 
 
@@ -728,7 +728,7 @@ class Artist(DeezerObject):
 
         :return: List of Album
         """
-        xbmc.log("DeezerKodi: Getting albums of artist id " + self.id, xbmc.LOGDEBUG)
+        xbmc.log("DeezerKodi: Getting albums of artist id {}".format(self.id), xbmc.LOGDEBUG)
         albums = []
 
         for a in self.connection.make_request('artist', self.id, 'albums')['data']:
@@ -742,7 +742,7 @@ class Artist(DeezerObject):
 
         :return: List of Track
         """
-        xbmc.log("DeezerKodi: Getting top tracks of artist id " + self.id, xbmc.LOGDEBUG)
+        xbmc.log("DeezerKodi: Getting top tracks of artist id {}".format(self.id), xbmc.LOGDEBUG)
         top = []
 
         for track in self.connection.make_request('artist', self.id, 'top')['data']:
@@ -926,7 +926,7 @@ class Api(object):
 
         :param Connection connection: A Connection to Deezer
         """
-        xbmc.log("DeezerKodi: Creating API instance", xbmc.LOGDEBUG)
+        xbmc.log("DeezerKodi: API: Creating API instance", xbmc.LOGDEBUG)
         self.connection = connection
 
     def get_user(self, id):
@@ -936,7 +936,7 @@ class Api(object):
         :param str id: ID of the user
         :return: A User
         """
-        xbmc.log("DeezerKodi: Getting user id {} from API".format(id), xbmc.LOGDEBUG)
+        xbmc.log("DeezerKodi: API: Getting user id {} from API".format(id), xbmc.LOGDEBUG)
         return User(self.connection, self.connection.make_request('user', id))
 
     def get_playlist(self, id):
@@ -946,7 +946,7 @@ class Api(object):
         :param int id: ID of the playlist
         :return: A Playlist
         """
-        xbmc.log("DeezerKodi: Getting playlist id {} from API".format(id), xbmc.LOGDEBUG)
+        xbmc.log("DeezerKodi: API: Getting playlist id {} from API".format(id), xbmc.LOGDEBUG)
         return Playlist(self.connection, self.connection.make_request('playlist', id))
 
     def get_track(self, id):
@@ -956,7 +956,7 @@ class Api(object):
         :param int id: ID of the track
         :return: A Track
         """
-        xbmc.log("DeezerKodi: Getting track id {} from API".format(id), xbmc.LOGDEBUG)
+        xbmc.log("DeezerKodi: API: Getting track id {} from API".format(id), xbmc.LOGDEBUG)
         return Track(self.connection, self.connection.make_request('track', id))
 
     def get_album(self, id):
@@ -966,7 +966,7 @@ class Api(object):
         :param int id: ID of the album
         :return: An Album
         """
-        xbmc.log("DeezerKodi: Getting album id {} from API".format(id), xbmc.LOGDEBUG)
+        xbmc.log("DeezerKodi: API: Getting album id {} from API".format(id), xbmc.LOGDEBUG)
         return Album(self.connection, self.connection.make_request('album', id))
 
     def get_artist(self, id):
@@ -976,7 +976,7 @@ class Api(object):
         :param int id: ID of the artist
         :return: An Artist
         """
-        xbmc.log("DeezerKodi: Getting artist id {} from API".format(id), xbmc.LOGDEBUG)
+        xbmc.log("DeezerKodi: API: Getting artist id {} from API".format(id), xbmc.LOGDEBUG)
         return Artist(self.connection, self.connection.make_request('artist', id))
 
     def search(self, query, filter):
@@ -989,7 +989,7 @@ class Api(object):
         :return:
         """
         xbmc.log(
-            "DeezerKodi: Searching {query} with filter {filter}".format(query=query, filter=filter),
+            "DeezerKodi: API: Searching {query} with filter {filter}".format(query=query, filter=filter),
             xbmc.LOGDEBUG
         )
         result = self.connection.make_request('search', method=filter, parameters={'q': query})
