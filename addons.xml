@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<addons><addon id="plugin.audio.deezer" name="Deezer" provider-name="Valentin271" version="0.1.1-alpha2">
+<addons><addon id="plugin.audio.deezer" name="Deezer" provider-name="Valentin271" version="0.1.1">
 
     <requires>
 	<import addon="xbmc.python" optional="true" version="2.24.0" />
@@ -24,7 +24,7 @@
 [v0.1.1]
 - Added information dialog if DeezerKodi cannot connect to Deezer
 - Fixed a bug that prevented loading folders or track and causing DeezerKodi to crash (#3 on github)
-- Addon now logs informations into kodi.log file
+- Addon now logs information into kodi.log file
 - Slight speed improvement while loading folders
 
 [v0.1.0]
