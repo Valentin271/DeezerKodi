@@ -30,7 +30,12 @@ except IOError:
 
     # If file does not exist, try to get token from API
     try:
+        # If no credentials, open setting window
+        if addon.getSetting('username') == '' or addon.getSetting('password') == '':
+            addon.openSettings()
+
         connection = Connection(addon.getSetting('username'), addon.getSetting('password'))
+
     except QuotaException:
         xbmc.log("DeezerKodi: Cannot get token from API", xbmc.LOGERROR)
         xbmcgui.Dialog().ok("Error", "Quota limit exceeded, please wait and retry.")
