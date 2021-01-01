@@ -14,6 +14,10 @@ from resources.lib.deezer_exception import QuotaException
 
 # Initializing addon
 addon = xbmcaddon.Addon('plugin.audio.deezer')
+
+VERSION = addon.getAddonInfo('version')
+xbmc.log("DeezerKodi: Starting DeezerKodi " + VERSION, xbmc.LOGINFO)
+
 args = urlparse.parse_qs(sys.argv[2][1:])
 
 
@@ -160,3 +164,4 @@ elif mode[0] == 'artist':
 
 # Saving connection with token for next time
 connection.save()
+xbmc.log('DeezerKodi: End of addon execution', xbmc.LOGNOTICE)
