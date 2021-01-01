@@ -1,17 +1,17 @@
 # -*- coding: utf-8 -*-
 
-import requests
-import urllib
-import sys
 import hashlib
 import json
 import pickle
+import sys
+import urllib
 
+import requests
 import xbmc
 import xbmcgui
 import xbmcplugin
 
-from resources.lib.deezer_exception import *
+from resources.lib.deezer_exception import QuotaException, DeezerException
 
 addon_handle = int(sys.argv[1])
 
@@ -27,7 +27,7 @@ def build_url(query):
     :return: The encoded url as str
     """
     for k, v in query.items():
-        if type(v) == unicode:
+        if isinstance(v, unicode):
             query[k] = v.encode('utf-8')
 
     return base_url + '?' + urllib.urlencode(query)
@@ -107,17 +107,17 @@ class Connection(object):
         xbmc.log('DeezerKodi: Connection: Getting access token ...', xbmc.LOGDEBUG)
         if self._username is None or self._password is None:
             raise Exception("Username and password are required!")
-        r = requests.get(self._API_AUTH_URL, params={
-                'login': self._username,
-                'password': self._password,
-                'device': 'panasonic'
+        response = requests.get(self._API_AUTH_URL, params={
+            'login': self._username,
+            'password': self._password,
+            'device': 'panasonic'
         })
-        response = r.json()
-        if 'access_token' in response:
-            self._access_token = response['access_token']
+        json_response = response.json()
+        if 'access_token' in json_response:
+            self._access_token = json_response['access_token']
         else:
-            if 'error' in response and response['error']['code'] == QuotaException.CODE:
-                raise QuotaException(response['error']['message'])
+            if 'error' in json_response and json_response['error']['code'] == QuotaException.CODE:
+                raise QuotaException(json_response['error']['message'])
             else:
                 raise DeezerException("Could not obtain access token!")
 
@@ -147,15 +147,16 @@ class Connection(object):
         :return:                JSON response as dict
         """
         xbmc.log(
-            'DeezerKodi: Connection: Requesting {} ...'.format('/'.join([str(service), str(id), str(method)])),
+            'DeezerKodi: Connection: Requesting {} ...'.format(
+                '/'.join([str(service), str(id), str(method)])),
             xbmc.LOGDEBUG
         )
 
         base_url = self._API_BASE_URL.format(service=service, id=id, method=method)
-        r = requests.get(base_url, params=self._merge_two_dicts(
-                {'output': 'json', 'access_token': self._access_token}, parameters
+        response = requests.get(base_url, params=self._merge_two_dicts(
+            {'output': 'json', 'access_token': self._access_token}, parameters
         ))
-        return json.loads(r.text)
+        return json.loads(response.text)
 
     @staticmethod
     def make_request_url(url):
@@ -166,8 +167,8 @@ class Connection(object):
         :return: JSON response as dict
         """
         xbmc.log('DeezerKodi: Connection: Making custom request ...', xbmc.LOGDEBUG)
-        r = requests.get(url)
-        return json.loads(r.text)
+        response = requests.get(url)
+        return json.loads(response.text)
 
     def make_request_streaming(self, id='', type='track'):
         """
@@ -178,20 +179,27 @@ class Connection(object):
         :return: Dict if type is radio or artist, str otherwise
         """
         xbmc.log(
-            'DeezerKodi: Connection: Requesting streaming for {type} with id {id} ...'.format(type=type, id=id),
+            'DeezerKodi: Connection: Requesting streaming for {type} with id {id} ...'.format(
+                type=type,
+                id=id
+            ),
             xbmc.LOGINFO
         )
-        r = requests.get(self._API_BASE_STREAMING_URL, params={
-                'access_token': self._access_token,
-                ("%s_id" % type): id,
-                'device': 'panasonic'
+        response = requests.get(self._API_BASE_STREAMING_URL, params={
+            'access_token': self._access_token,
+            "{}_id".format(type): id,
+            'device': 'panasonic'
         })
         if type.startswith('radio') or type.startswith('artist'):
-            return json.loads(r.text)
-        return r.text
+            return json.loads(response.text)
+        return response.text
 
 
 class DeezerObject(object):
+    """
+    Base class for any DeezerAPI class
+    """
+
     def __init__(self, connection, object_content):
         """
         Instantiate a Deezer Object from a `connection` and the `content` of the object.
@@ -215,6 +223,7 @@ class User(DeezerObject):
     """
     Deezer User. Represented by his playlists, followings, flow, history, recommendations, ...
     """
+
     def get_playlists(self):
         """
         Return the user's playlists.
@@ -380,11 +389,13 @@ class Playlist(DeezerObject):
     """
     Deezer Playlist. A list of tracks with a playlist picture.
     """
+
     def get_tracks(self, next_url=None):
         """
         Return playlist's tracks.
 
-        :param str next_url: Url of the next part of the playlist, used for recursion. Shouldn't be used otherwise.
+        :param str next_url: Url of the next part of the playlist, used for recursion.
+            Shouldn't be used otherwise.
         :return: A list of Track
         """
         xbmc.log("DeezerKodi: Getting playlist's tracks", xbmc.LOGDEBUG)
@@ -441,14 +452,13 @@ class Playlist(DeezerObject):
         """
         xbmc.log("DeezerKodi: Trying to get playlist picture in size {}".format(size), xbmc.LOGDEBUG)
 
-        if size in ['small', 'medium', 'big', 'xl'] and hasattr(self, 'picture_'+size):
-            pic = self.__dict__['picture_'+size]
-        elif size == '' and hasattr(self, 'picture'):
-            pic = self.picture
-        else:
-            pic = ''
+        if size in ['small', 'medium', 'big', 'xl'] and hasattr(self, 'picture_' + size):
+            return self.__dict__['picture_' + size]
 
-        return pic
+        if size == '' and hasattr(self, 'picture'):
+            return self.picture
+
+        return ''
 
     def display(self, end=True):
         """
@@ -468,15 +478,15 @@ class Playlist(DeezerObject):
 
             li = xbmcgui.ListItem(track.title)
             li.setInfo('music', {
-                    'duration': track.duration,
-                    'album': track_album.title,
-                    'artist': track.get_artist().name,
-                    'title': track.title,
-                    'mediatype': 'song'
+                'duration': track.duration,
+                'album': track_album.title,
+                'artist': track.get_artist().name,
+                'title': track.title,
+                'mediatype': 'song'
             })
             li.setArt({
-                    'thumb': track_album.get_cover('big'),
-                    'icon': track_album.get_cover('small')
+                'thumb': track_album.get_cover('big'),
+                'icon': track_album.get_cover('small')
             })
 
             url = build_url({'mode': 'track', 'id': track.id, 'container': 'playlist'})
@@ -510,15 +520,15 @@ class Playlist(DeezerObject):
             li = xbmcgui.ListItem(track.title)
             li.setProperty('IsPlayable', 'true')
             li.setInfo('music', {
-                    'duration': track.duration,
-                    'album': track.get_album().title,
-                    'artist': track.get_artist().name,
-                    'title': track.title,
-                    'mediatype': 'song'
+                'duration': track.duration,
+                'album': track.get_album().title,
+                'artist': track.get_artist().name,
+                'title': track.title,
+                'mediatype': 'song'
             })
             li.setArt({
-                    'thumb': track_album.get_cover('big'),
-                    'icon': track_album.get_cover('small')
+                'thumb': track_album.get_cover('big'),
+                'icon': track_album.get_cover('small')
             })
 
             url = build_url({'mode': 'queue_track', 'id': track.id})
@@ -537,6 +547,7 @@ class Track(DeezerObject):
     """
     Deezer Track.
     """
+
     def get_album(self):
         """
         Return the album of the track.
@@ -579,11 +590,11 @@ class Track(DeezerObject):
 
         li = xbmcgui.ListItem()
         li.setInfo('music', {
-                'duration': self.duration,
-                'album': self.get_album().title,
-                'artist': self.get_artist().name,
-                'title': self.title,
-                'mediatype': 'song'
+            'duration': self.duration,
+            'album': self.get_album().title,
+            'artist': self.get_artist().name,
+            'title': self.title,
+            'mediatype': 'song'
         })
 
         xbmc.Player().play(url, li)
@@ -593,13 +604,14 @@ class Album(DeezerObject):
     """
     Deezer Album. List of track with a cover.
     """
+
     def get_tracks(self):
         """
         Return the track list of the album.
 
         :return: List of Track
         """
-        xbmc.log("DeezerKodi: Getting tracks of album id {}".format(), xbmc.LOGDEBUG)
+        xbmc.log("DeezerKodi: Getting tracks of album id {}".format(self.id), xbmc.LOGDEBUG)
         tracks = []
 
         for track in self.tracks['data']:
@@ -650,14 +662,13 @@ class Album(DeezerObject):
         """
         xbmc.log("DeezerKodi: Trying to get album cover of size " + size, xbmc.LOGDEBUG)
 
-        if size in ['small', 'medium', 'big', 'xl'] and hasattr(self, 'cover_'+size):
-            cover = self.__dict__['cover_'+size]
-        elif size == '' and hasattr(self, 'cover'):
-            cover = self.cover
-        else:
-            cover = ''
+        if size in ['small', 'medium', 'big', 'xl'] and hasattr(self, 'cover_' + size):
+            return self.__dict__['cover_' + size]
 
-        return cover
+        if size == '' and hasattr(self, 'cover'):
+            return self.cover
+
+        return ''
 
     def display(self, end=True):
         """
@@ -675,18 +686,17 @@ class Album(DeezerObject):
         icon = self.get_cover('small')
 
         for track in self.get_tracks():
-
             li = xbmcgui.ListItem(track.title)
             li.setInfo('music', {
-                    'duration': track.duration,
-                    'album': self.title,
-                    'artist': track.get_artist().name,
-                    'title': track.title,
-                    'mediatype': 'song'
+                'duration': track.duration,
+                'album': self.title,
+                'artist': track.get_artist().name,
+                'title': track.title,
+                'mediatype': 'song'
             })
             li.setArt({
-                    'thumb': thumb,
-                    'icon': icon
+                'thumb': thumb,
+                'icon': icon
             })
 
             url = build_url({'mode': 'track', 'id': track.id, 'container': 'album'})
@@ -719,15 +729,15 @@ class Album(DeezerObject):
             li = xbmcgui.ListItem(track.title)
             li.setProperty('IsPlayable', 'true')
             li.setInfo('music', {
-                    'duration': track.duration,
-                    'album': track.get_album().title,
-                    'artist': track.get_artist().name,
-                    'title': track.title,
-                    'mediatype': 'song'
+                'duration': track.duration,
+                'album': track.get_album().title,
+                'artist': track.get_artist().name,
+                'title': track.title,
+                'mediatype': 'song'
             })
             li.setArt({
-                    'thumb': thumb,
-                    'icon': icon
+                'thumb': thumb,
+                'icon': icon
             })
 
             url = build_url({'mode': 'queue_track', 'id': track.id})
@@ -746,6 +756,7 @@ class Artist(DeezerObject):
     """
     Deezer Artist object. Has a collection of album, a top, ...
     """
+
     def get_albums(self):
         """
         Return all albums from this artist.
@@ -782,18 +793,20 @@ class Artist(DeezerObject):
         :return: The url of the picture
         """
         xbmc.log(
-            "DeezerKodi: Trying to get picture of artist id {id} with size {size}".format(id=self.id, size=size),
+            "DeezerKodi: Trying to get picture of artist id {id} with size {size}".format(
+                id=self.id,
+                size=size
+            ),
             xbmc.LOGDEBUG
         )
 
-        if size in ['small', 'medium', 'big', 'xl'] and hasattr(self, 'picture_'+size):
-            pic = self.__dict__['picture_'+size]
-        elif size == '' and hasattr(self, 'picture'):
-            pic = self.picture
-        else:
-            pic = ''
+        if size in ['small', 'medium', 'big', 'xl'] and hasattr(self, 'picture_' + size):
+            return self.__dict__['picture_' + size]
 
-        return pic
+        if size == '' and hasattr(self, 'picture'):
+            return self.picture
+
+        return ''
 
     def display(self, end=True):
         """
@@ -809,8 +822,8 @@ class Artist(DeezerObject):
         for album in self.get_albums():
             li = xbmcgui.ListItem(album.title)
             li.setArt({
-                    'thumb': album.get_cover('big'),
-                    'icon': album.get_cover('small')
+                'thumb': album.get_cover('big'),
+                'icon': album.get_cover('small')
             })
 
             url = build_url({'mode': 'album', 'id': album.id})
@@ -819,6 +832,7 @@ class Artist(DeezerObject):
 
         xbmcplugin.addDirectoryItems(addon_handle, items, len(items))
         xbmcplugin.setContent(addon_handle, 'artists')
+
         if end:
             xbmcplugin.endOfDirectory(addon_handle)
             xbmc.log("DeezerKodi: End of artist display", xbmc.LOGDEBUG)
@@ -828,6 +842,7 @@ class Search(object):
     """
     Deezer Search. List of searched item (tracks, albums, artists, ...)
     """
+
     def __init__(self, connection, content, search_type):
         """
         Instantiate a Search with a connection, data and a search type.
@@ -870,15 +885,15 @@ class Search(object):
 
             li = xbmcgui.ListItem(track.title)
             li.setInfo('music', {
-                    'duration': track.duration,
-                    'album': track_album.title,
-                    'artist': track.get_artist().name,
-                    'title': track.title,
-                    'mediatype': 'song'
+                'duration': track.duration,
+                'album': track_album.title,
+                'artist': track.get_artist().name,
+                'title': track.title,
+                'mediatype': 'song'
             })
             li.setArt({
-                    'thumb': track_album.get_cover('big'),
-                    'icon': track_album.get_cover('small')
+                'thumb': track_album.get_cover('big'),
+                'icon': track_album.get_cover('small')
             })
 
             url = build_url({'mode': 'searched_track', 'id': track.id})
@@ -902,8 +917,8 @@ class Search(object):
 
             li = xbmcgui.ListItem(album.title)
             li.setArt({
-                    'thumb': album.get_cover('big'),
-                    'icon': album.get_cover('small')
+                'thumb': album.get_cover('big'),
+                'icon': album.get_cover('small')
             })
 
             url = build_url({'mode': 'album', 'id': album.id})
@@ -927,8 +942,8 @@ class Search(object):
 
             li = xbmcgui.ListItem(artist.name)
             li.setArt({
-                    'thumb': artist.get_picture('big'),
-                    'icon': artist.get_picture('small')
+                'thumb': artist.get_picture('big'),
+                'icon': artist.get_picture('small')
             })
 
             url = build_url({'mode': 'artist', 'id': artist.id})
@@ -945,6 +960,7 @@ class Api(object):
     """
     Api class. Allows to query for Deezer object easily from the API.
     """
+
     def __init__(self, connection):
         """
         Instatiate an Api object with a connection to Deezer.
