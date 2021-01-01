@@ -8,7 +8,7 @@ Tracks are played in 128kb resolution only as that's the max available bitrate f
 
 
 # Installation
-* Download the [latest release zip file](https://raw.githubusercontent.com/Valentin271/DeezerKodi/master/plugin.audio.deezer/plugin.audio.deezer-0.1.1.zip) located at `plugin.audio.deezer/plugin.audio.deezer-x.y.z.zip`.
+* Download the [latest release zip file](https://raw.githubusercontent.com/Valentin271/DeezerKodi/master/plugin.audio.deezer/plugin.audio.deezer-0.1.2.zip) located at `plugin.audio.deezer/plugin.audio.deezer-x.y.z.zip`.
 * Move it to your kodi box.
 * Install it by selecting `'Install from zip file'` in the addon menu.
 
