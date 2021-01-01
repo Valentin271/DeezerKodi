@@ -854,7 +854,8 @@ class Search(object):
         elif self.search_type == 'artist':
             self.__display_artists()
 
-        raise Exception("Invalid search type, cannot display result")
+        else:
+            raise DeezerException("Invalid search type, cannot display result")
 
     def __display_tracks(self):
         """
