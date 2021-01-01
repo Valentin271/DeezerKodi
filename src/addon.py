@@ -169,4 +169,4 @@ elif mode[0] == 'artist':
 
 # Saving connection with token for next time
 connection.save()
-xbmc.log('DeezerKodi: End of addon execution', xbmc.LOGNOTICE)
+xbmc.log('DeezerKodi: End of addon execution', xbmc.LOGINFO)
