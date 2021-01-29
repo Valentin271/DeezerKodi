@@ -1,6 +1,11 @@
 # -*- coding: utf-8 -*-
 
-import urlparse
+try:
+    from urllib.parse import parse_qs
+except ImportError:
+    from urlparse import parse_qs
+
+import sys
 
 import xbmc
 import xbmcaddon
@@ -16,7 +21,7 @@ ADDON = xbmcaddon.Addon('plugin.audio.deezer')
 VERSION = ADDON.getAddonInfo('version')
 xbmc.log("DeezerKodi: Starting DeezerKodi " + VERSION, xbmc.LOGINFO)
 
-ARGS = urlparse.parse_qs(sys.argv[2][1:])
+ARGS = parse_qs(sys.argv[2][1:])
 
 CONNECTION = None
 # Trying to get token from file
