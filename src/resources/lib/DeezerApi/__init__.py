@@ -4,7 +4,14 @@ import hashlib
 import json
 import pickle
 import sys
-import urllib
+
+# Python3
+try:
+    from urllib.parse import urlencode
+
+# Python2
+except ImportError:
+    from urllib import urlencode
 
 import requests
 import xbmc
@@ -27,10 +34,15 @@ def build_url(query):
     :return: The encoded url as str
     """
     for k, v in query.items():
-        if isinstance(v, unicode):
-            query[k] = v.encode('utf-8')
+        # Python2
+        try:
+            if isinstance(v, unicode):
+                query[k] = v.encode('utf-8')
+        # Python3
+        except NameError:
+            pass
 
-    return base_url + '?' + urllib.urlencode(query)
+    return base_url + '?' + urlencode(query)
 
 
 class Connection(object):

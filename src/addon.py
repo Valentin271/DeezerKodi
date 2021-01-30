@@ -1,7 +1,10 @@
 # -*- coding: utf-8 -*-
 
+# Python3
 try:
     from urllib.parse import parse_qs
+
+# Python2
 except ImportError:
     from urlparse import parse_qs
 

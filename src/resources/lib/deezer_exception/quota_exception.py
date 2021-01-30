@@ -2,7 +2,7 @@
 This module defines the QuotaException class which represents the Deezer API QUOTA error.
 """
 
-from deezer_exception import DeezerException
+from .deezer_exception import DeezerException
 
 
 class QuotaException(DeezerException):
