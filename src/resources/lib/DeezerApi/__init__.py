@@ -422,7 +422,8 @@ class Playlist(DeezerObject):
             tracks_data = self.connection.make_request('playlist', self.id, 'tracks')
 
         for track in tracks_data['data']:
-            tracks.append(Track(self.connection, track))
+            if track['readable']:
+                tracks.append(Track(self.connection, track))
 
         if 'next' in tracks_data:
             tracks += self.get_tracks(tracks_data['next'])
@@ -627,7 +628,8 @@ class Album(DeezerObject):
         tracks = []
 
         for track in self.tracks['data']:
-            tracks.append(Track(self.connection, track))
+            if track['readable']:
+                tracks.append(Track(self.connection, track))
 
         return tracks
 
