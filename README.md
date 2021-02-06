@@ -1,10 +1,10 @@
 # DeezerKodi
 This is an unofficial Deezer addon for Kodi.  
 It works **only for premium account** (Deezer API doesn't allow streaming for free accounts).
-This addon works for personal and family accounts (usable profiles)
-It supports access to your playlists. Searching for tracks, albums and artists is also implemented.  
-It does not allow for browsing the chart and radio at the moment, but it may be implemented in the future (let me know if you're interested).
-Tracks are played in 128kb resolution only as that's the max available bitrate for TVs from Deezer.
+This addon works for personal and family accounts (profiles are usable).  
+It supports access to your playlists. Searching for tracks, albums and artists is also implemented.
+Let me know if there is a particular feature you want to see implemented.  
+Tracks are played in 128kb resolution as that's the max available bitrate for TVs from Deezer.
 
 
 # Installation
@@ -18,9 +18,9 @@ And that's all, it should be updated automatically on every release.
 If you previously installed kubatek94's DeezerKodi addon, you should uninstall it first.
 
 ### Compatibility
-This addon should be compatible with every version of kodi from Jarvis 16 to latest and across devices. However, it has been tested only with Krypton 17.6 on Debian, and with Leia 18.x on Ubuntu 18.04.
-Feel free to let me know if one version/OS or another is working or not.  
-Also note that this addon is designed for kodi v18 Leia and later.
+This addon has been tested with Kodi "Leia" 18 and Kodi "Matrix" 19.
+Tests where done on Ubuntu, but the addon should work on every device.  
+If you have any compatibility issue, please refer to the Issues section.
 
 
 # Limitations
@@ -37,4 +37,4 @@ If you have any problem with the addon, feel free to open a new [issue](https://
 
 ## Credits
 This addon is forked from [kubatek94](https://github.com/kubatek94)'s [DeezerKodi repo](https://github.com/kubatek94/DeezerKodi).
-Only the API, icon and fanart have been reused.
+Only the streaming API, icon and fanart have been reused.
