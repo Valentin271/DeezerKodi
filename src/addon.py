@@ -129,10 +129,18 @@ elif MODE[0] == 'queue_track':
     url = CONNECTION.make_request_streaming(ARGS['id'][0], 'track')
 
     if url.startswith('http'):
+        xbmc.log("Playing track " + ARGS['id'][0], xbmc.LOGDEBUG)
         li = xbmcgui.ListItem(path=url)
         xbmcplugin.setResolvedUrl(addon_handle, True, listitem=li)
     else:
-        xbmcplugin.setResolvedUrl(addon_handle, False, None)
+        xbmc.log("Unplayable track " + ARGS['id'][0], xbmc.LOGWARNING)
+        xbmcgui.Dialog().notification(
+            "Unplayable track",
+            "Track " + ARGS['id'][0] + " cannot be played.",
+            xbmcgui.NOTIFICATION_WARNING,
+            sound=False
+        )
+        xbmcplugin.setResolvedUrl(addon_handle, False, xbmcgui.ListItem())
 
 
 # display the search menu
