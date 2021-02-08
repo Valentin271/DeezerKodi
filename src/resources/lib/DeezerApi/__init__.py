@@ -393,18 +393,30 @@ class User(DeezerObject):
 
         for a in self.get_favourites_albums():
             li = xbmcgui.ListItem(a.title)
+            li.setArt({
+                'thumb': a.get_cover('big'),
+                'icon': a.get_cover('small')
+            })
             url = build_url({'mode': 'album', 'id': a.id})
 
             items.append((url, li, True))
 
         for a in self.get_favourites_artists():
             li = xbmcgui.ListItem(a.name)
+            li.setArt({
+                'thumb': a.get_picture('big'),
+                'icon': a.get_picture('small')
+            })
             url = build_url({'mode': 'artist', 'id': a.id})
 
             items.append((url, li, True))
 
         for play in self.get_playlists():
             li = xbmcgui.ListItem(play.title)
+            li.setArt({
+                'thumb': play.get_picture('big'),
+                'icon': play.get_picture('small')
+            })
             url = build_url({'mode': 'playlist', 'id': play.id})
 
             items.append((url, li, True))
