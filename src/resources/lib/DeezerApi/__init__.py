@@ -236,6 +236,36 @@ class User(DeezerObject):
     Deezer User. Represented by his playlists, followings, flow, history, recommendations, ...
     """
 
+    def get_favourites_albums(self):
+        """
+        Return the user's favourites albums
+        :return: A list of Album
+        """
+        xbmc.log("DeezerKodi: Getting user's favourites albums", xbmc.LOGDEBUG)
+
+        albums = []
+        response = self.connection.make_request('user', self.id, 'albums')
+
+        for lst in response['data']:
+            albums.append(Album(self.connection, lst))
+
+        return albums
+
+    def get_favourites_artists(self):
+        """
+        Return the user's favourites artists
+        :return: A list of Artists
+        """
+        xbmc.log("DeezerKodi: Getting user's favourites artists", xbmc.LOGDEBUG)
+
+        artists = []
+        response = self.connection.make_request('user', self.id, 'artists')
+
+        for lst in response['data']:
+            artists.append(Artist(self.connection, lst))
+
+        return artists
+
     def get_playlists(self):
         """
         Return the user's playlists.
@@ -360,6 +390,18 @@ class User(DeezerObject):
         xbmc.log("DeezerKodi: Displaying user ...", xbmc.LOGDEBUG)
 
         items = []
+
+        for a in self.get_favourites_albums():
+            li = xbmcgui.ListItem(a.title)
+            url = build_url({'mode': 'album', 'id': a.id})
+
+            items.append((url, li, True))
+
+        for a in self.get_favourites_artists():
+            li = xbmcgui.ListItem(a.name)
+            url = build_url({'mode': 'artist', 'id': a.id})
+
+            items.append((url, li, True))
 
         for play in self.get_playlists():
             li = xbmcgui.ListItem(play.title)
