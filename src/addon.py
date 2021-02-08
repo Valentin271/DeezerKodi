@@ -166,10 +166,13 @@ elif MODE == 'search-menu':
 # when the user wants to search for something
 elif MODE == 'search':
     xbmc.log("DeezerKodi: Mode 'search'", xbmc.LOGINFO)
-    query = xbmcgui.Dialog().input('Search')
-    result = API.search(query, ARGS['filt'])
 
-    result.display()
+    query = xbmcgui.Dialog().input('Search')
+
+    # if user canceled
+    if query != '':
+        result = API.search(query, ARGS['filt'])
+        result.display()
 
 
 # play a single track from a search
