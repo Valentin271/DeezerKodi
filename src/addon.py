@@ -1,13 +1,5 @@
 # -*- coding: utf-8 -*-
 
-# Python3
-try:
-    from urllib.parse import parse_qs
-
-# Python2
-except ImportError:
-    from urlparse import parse_qs
-
 import sys
 
 import xbmc
@@ -24,7 +16,27 @@ ADDON = xbmcaddon.Addon('plugin.audio.deezer')
 VERSION = ADDON.getAddonInfo('version')
 xbmc.log("DeezerKodi: Starting DeezerKodi " + VERSION, xbmc.LOGINFO)
 
+
+def parse_qs(query):
+    """
+    Parse a query string into a dict.
+
+    :return: dict
+    """
+    if query == '':
+        return {}
+
+    parsed = {}
+
+    for param in query.split('&'):
+        item = param.split('=')
+        parsed[item[0]] = item[1]
+
+    return parsed
+
+
 ARGS = parse_qs(sys.argv[2][1:])
+
 
 CONNECTION = None
 # Trying to get token from file
@@ -91,52 +103,52 @@ if MODE is None:
 
 
 # display a user
-elif MODE[0] == 'user':
+elif MODE == 'user':
     xbmc.log("DeezerKodi: Mode 'user'", xbmc.LOGINFO)
-    me = API.get_user(ARGS['id'][0])
+    me = API.get_user(ARGS['id'])
     me.display()
 
 
 # display family profiles (actually main profile's followings since API doesn't give profiles)
-elif MODE[0] == 'family':
+elif MODE == 'family':
     xbmc.log("DeezerKodi: Mode 'family'", xbmc.LOGINFO)
     me = API.get_user('me')
     me.display_family_profiles()
 
 
 # display a playlist
-elif MODE[0] == 'playlist':
+elif MODE == 'playlist':
     xbmc.log("DeezerKodi: Mode 'playlist'", xbmc.LOGINFO)
-    playlist = API.get_playlist(ARGS['id'][0])
+    playlist = API.get_playlist(ARGS['id'])
     playlist.display()
 
 
 # when a track is clicked
 # add playlist to queue and play selected song
-elif MODE[0] == 'track':
+elif MODE == 'track':
     xbmc.log("DeezerKodi: Mode 'track'", xbmc.LOGINFO)
     if ARGS['container'][0] == 'playlist':
         current_list = Playlist.load()
     else:
         current_list = Album.load()
 
-    current_list.queue(ARGS['id'][0])
+    current_list.queue(ARGS['id'])
 
 
 # when a track in queue is selected for playing
-elif MODE[0] == 'queue_track':
+elif MODE == 'queue_track':
     xbmc.log("DeezerKodi: Mode 'queue_track'", xbmc.LOGINFO)
-    url = CONNECTION.make_request_streaming(ARGS['id'][0], 'track')
+    url = CONNECTION.make_request_streaming(ARGS['id'], 'track')
 
     if url.startswith('http'):
-        xbmc.log("Playing track " + ARGS['id'][0], xbmc.LOGDEBUG)
+        xbmc.log("Playing track " + ARGS['id'], xbmc.LOGDEBUG)
         li = xbmcgui.ListItem(path=url)
         xbmcplugin.setResolvedUrl(addon_handle, True, listitem=li)
     else:
-        xbmc.log("Unplayable track " + ARGS['id'][0], xbmc.LOGWARNING)
+        xbmc.log("Unplayable track " + ARGS['id'], xbmc.LOGWARNING)
         xbmcgui.Dialog().notification(
             "Unplayable track",
-            "Track " + ARGS['id'][0] + " cannot be played.",
+            "Track " + ARGS['id'] + " cannot be played.",
             xbmcgui.NOTIFICATION_WARNING,
             sound=False
         )
@@ -144,7 +156,7 @@ elif MODE[0] == 'queue_track':
 
 
 # display the search menu
-elif MODE[0] == 'search-menu':
+elif MODE == 'search-menu':
     xbmc.log("DeezerKodi: Mode 'search-menu'", xbmc.LOGINFO)
     items = search_menu()
     xbmcplugin.addDirectoryItems(addon_handle, items, len(items))
@@ -152,32 +164,32 @@ elif MODE[0] == 'search-menu':
 
 
 # when the user wants to search for something
-elif MODE[0] == 'search':
+elif MODE == 'search':
     xbmc.log("DeezerKodi: Mode 'search'", xbmc.LOGINFO)
     query = xbmcgui.Dialog().input('Search')
-    result = API.search(query, ARGS['filt'][0])
+    result = API.search(query, ARGS['filt'])
 
     result.display()
 
 
 # play a single track from a search
-elif MODE[0] == 'searched_track':
+elif MODE == 'searched_track':
     xbmc.log("DeezerKodi: Mode 'searched_track'", xbmc.LOGINFO)
-    track = API.get_track(ARGS['id'][0])
+    track = API.get_track(ARGS['id'])
     track.play()
 
 
 # displays an album
-elif MODE[0] == 'album':
+elif MODE == 'album':
     xbmc.log("DeezerKodi: Mode 'album'", xbmc.LOGINFO)
-    album = API.get_album(ARGS['id'][0])
+    album = API.get_album(ARGS['id'])
     album.display()
 
 
 # displays an artist
-elif MODE[0] == 'artist':
+elif MODE == 'artist':
     xbmc.log("DeezerKodi: Mode 'artist'", xbmc.LOGINFO)
-    artist = API.get_artist(ARGS['id'][0])
+    artist = API.get_artist(ARGS['id'])
     artist.display()
 
 # Saving connection with token for next time
