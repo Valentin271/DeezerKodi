@@ -123,21 +123,9 @@ elif MODE == 'playlist':
     playlist.display()
 
 
-# when a track is clicked
-# add playlist to queue and play selected song
+# when a track in queue is selected for playing
 elif MODE == 'track':
     xbmc.log("DeezerKodi: Mode 'track'", xbmc.LOGINFO)
-    if ARGS['container'][0] == 'playlist':
-        current_list = Playlist.load()
-    else:
-        current_list = Album.load()
-
-    current_list.queue(ARGS['id'])
-
-
-# when a track in queue is selected for playing
-elif MODE == 'queue_track':
-    xbmc.log("DeezerKodi: Mode 'queue_track'", xbmc.LOGINFO)
     url = CONNECTION.make_request_streaming(ARGS['id'], 'track')
 
     if url.startswith('http'):

@@ -485,31 +485,6 @@ class Playlist(DeezerObject):
         tracks.reverse()
         return tracks
 
-    def save(self):
-        """
-        Save the playlist to a file in kodi special temp folder.\n
-        Used for adding playlist to queue without querying API again.
-        """
-        path = xbmc.translatePath('special://temp/playlist.pickle')
-        xbmc.log("DeezerKodi: Saving playlist to file {}".format(path), xbmc.LOGDEBUG)
-
-        with open(path, 'wb') as f:
-            pickle.dump(self, f, pickle.HIGHEST_PROTOCOL)
-
-    @staticmethod
-    def load():
-        """
-        Load a playlist from a file in kodi special temp folder.
-
-        :return: a Playlist object
-        """
-        path = xbmc.translatePath('special://temp/playlist.pickle')
-        xbmc.log("DeezerKodi: Getting playlist from file {}".format(path), xbmc.LOGDEBUG)
-
-        with open(path, 'rb') as f:
-            cls = pickle.load(f)
-        return cls
-
     def get_picture(self, size=''):
         """
         Return the url to the picture of the playlist.
@@ -536,7 +511,6 @@ class Playlist(DeezerObject):
             True by default
         """
         xbmc.log("DeezerKodi: Displaying playlist ...", xbmc.LOGDEBUG)
-        self.save()
 
         items = []
 
@@ -555,6 +529,7 @@ class Playlist(DeezerObject):
                 'thumb': track_album.get_cover('big'),
                 'icon': track_album.get_cover('small')
             })
+            li.setProperty('IsPlayable', 'true')
 
             url = build_url({'mode': 'track', 'id': track.id, 'container': 'playlist'})
 
@@ -565,49 +540,6 @@ class Playlist(DeezerObject):
         if end:
             xbmcplugin.endOfDirectory(addon_handle)
             xbmc.log("DeezerKodi: End of playlist display", xbmc.LOGDEBUG)
-
-    def queue(self, startid):
-        """
-        Add the entire playlist to the queue. Then start playing at item `startid`.
-
-        :param int startid: ID of the first item to play
-        """
-        xbmc.log(
-            "DeezerKodi: Adding playlist to queue starting with track id {}".format(startid),
-            xbmc.LOGDEBUG
-        )
-
-        xbmc.executebuiltin('Playlist.Clear')
-        playlist = xbmc.PlayList(xbmc.PLAYLIST_MUSIC)
-        startpos = 0
-
-        for pos, track in enumerate(self.get_tracks()):
-            track_album = track.get_album()
-
-            li = xbmcgui.ListItem(track.title)
-            li.setProperty('IsPlayable', 'true')
-            li.setInfo('music', {
-                'duration': track.duration,
-                'album': track.get_album().title,
-                'artist': track.get_artist().name,
-                'title': track.title,
-                'mediatype': 'song'
-            })
-            li.setArt({
-                'thumb': track_album.get_cover('big'),
-                'icon': track_album.get_cover('small')
-            })
-
-            url = build_url({'mode': 'queue_track', 'id': track.id})
-
-            # adding song (as a kodi url) to playlist
-            playlist.add(url, li)
-
-            if track.id == int(startid):
-                startpos = pos
-
-        xbmc.log("DeezerKodi: Starting queued playlist at index {}".format(startpos), xbmc.LOGDEBUG)
-        xbmc.Player().play(playlist, startpos=startpos)
 
 
 class Track(DeezerObject):
@@ -696,31 +628,6 @@ class Album(DeezerObject):
         xbmc.log("DeezerKodi: Getting artist of album id {}".format(self.id), xbmc.LOGDEBUG)
         return Artist(self.connection, self.artist)
 
-    def save(self):
-        """
-        Save album to a file in kodi special temp folder.\n
-        Used for adding album to queue without querying API again.
-        """
-        path = xbmc.translatePath("special://temp/playlist.pickle")
-        xbmc.log("DeezerKodi: Saving album to file " + path, xbmc.LOGDEBUG)
-
-        with open(path, 'wb') as f:
-            pickle.dump(self, f, pickle.HIGHEST_PROTOCOL)
-
-    @staticmethod
-    def load():
-        """
-        Load an Album from a file in kodi special temp folder.
-
-        :return: an Album object
-        """
-        path = xbmc.translatePath("special://temp/playlist.pickle")
-        xbmc.log("DeezerKodi: Loading album from file " + path, xbmc.LOGDEBUG)
-
-        with open(path, 'rb') as f:
-            cls = pickle.load(f)
-        return cls
-
     def get_cover(self, size=''):
         """
         Return the url to the cover of the album.
@@ -747,7 +654,6 @@ class Album(DeezerObject):
             True by default
         """
         xbmc.log("DeezerKodi: Displaying album ...", xbmc.LOGDEBUG)
-        self.save()
 
         items = []
         thumb = self.get_cover('big')
@@ -766,6 +672,7 @@ class Album(DeezerObject):
                 'thumb': thumb,
                 'icon': icon
             })
+            li.setProperty('IsPlayable', 'true')
 
             url = build_url({'mode': 'track', 'id': track.id, 'container': 'album'})
 
@@ -777,47 +684,6 @@ class Album(DeezerObject):
         if end:
             xbmcplugin.endOfDirectory(addon_handle)
             xbmc.log("DeezerKodi: End of album display", xbmc.LOGDEBUG)
-
-    def queue(self, startid):
-        """
-        Add the entire playlist to the queue. Then start playing at item `startid`.
-
-        :param int startid: ID of the first item to play
-        """
-        xbmc.log("DeezerKodi: Queuing album ...", xbmc.LOGDEBUG)
-
-        xbmc.executebuiltin('Playlist.Clear')
-        playlist = xbmc.PlayList(xbmc.PLAYLIST_MUSIC)
-        startpos = 0
-
-        thumb = self.get_cover('big')
-        icon = self.get_cover('small')
-
-        for pos, track in enumerate(self.get_tracks()):
-            li = xbmcgui.ListItem(track.title)
-            li.setProperty('IsPlayable', 'true')
-            li.setInfo('music', {
-                'duration': track.duration,
-                'album': track.get_album().title,
-                'artist': track.get_artist().name,
-                'title': track.title,
-                'mediatype': 'song'
-            })
-            li.setArt({
-                'thumb': thumb,
-                'icon': icon
-            })
-
-            url = build_url({'mode': 'queue_track', 'id': track.id})
-
-            # adding song (as a kodi url) to playlist
-            playlist.add(url, li)
-
-            if track.id == int(startid):
-                startpos = pos
-
-        xbmc.log("DeezerKodi: Starting to play album at track {}".format(startpos), xbmc.LOGDEBUG)
-        xbmc.Player().play(playlist, startpos=startpos)
 
 
 class Artist(DeezerObject):
