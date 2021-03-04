@@ -379,47 +379,110 @@ class User(DeezerObject):
 
         return artists
 
-    def display(self, end=True):
+    def listItem(self):
+        """
+        Returns this object representation in menus.
+
+        :return: a list of ListItem
+        """
+        li = xbmcgui.ListItem(self.name)
+        return li
+
+    def listItems(self):
+        """
+        Returns the content of a User (playlists folder, albums folder, etc).
+
+        :return: a list of ListItem
+        """
+        items = []
+
+        # Playlists
+        li = xbmcgui.ListItem('Playlists')
+        url = build_url({'mode': 'user_playlist', 'id': self.id})
+        items.append((url, li, True))
+
+        # Albums
+        li = xbmcgui.ListItem('Albums')
+        url = build_url({'mode': 'user_album', 'id': self.id})
+        items.append((url, li, True))
+
+        # Artists
+        li = xbmcgui.ListItem('Artists')
+        url = build_url({'mode': 'user_artist', 'id': self.id})
+        items.append((url, li, True))
+
+        return items
+
+    def albums_li(self):
+        """
+        Returns the user's favorite albums.
+
+        :return: a list of ListItem
+        """
+        items = []
+
+        for a in self.get_favourites_albums():
+            li = a.listItem()
+            url = build_url({'mode': 'album', 'id': a.id})
+            items.append((url, li, True))
+
+        return items
+
+    def artists_li(self):
+        """
+        Returns the user's favorite artists.
+
+        :return: a list of ListItem
+        """
+        items = []
+
+        for a in self.get_favourites_artists():
+            li = a.listItem()
+            url = build_url({'mode': 'artist', 'id': a.id})
+            items.append((url, li, True))
+
+        return items
+
+    def playlists_li(self):
+        """
+        Returns the user's playlists.
+
+        :return: a list of ListItem
+        """
+        items = []
+
+        for play in self.get_playlists():
+            li = play.listItem()
+            url = build_url({'mode': 'playlist', 'id': play.id})
+            items.append((url, li, True))
+
+        return items
+
+    def display(self, mode='', end=True):
         """
         Display User as a kodi listing.\n
         A User consists of a list of playlist (for now).
 
+        :param str mode: Whether to display the user content or his playlists, albums etc
         :param bool end: Set if the method gives back focus to kodi
             True by default
         """
-        xbmc.log("DeezerKodi: Displaying user ...", xbmc.LOGDEBUG)
 
-        items = []
+        if mode == 'playlist':
+            xbmc.log("DeezerKodi: Displaying user playlists ...", xbmc.LOGDEBUG)
+            items = self.playlists_li()
 
-        for a in self.get_favourites_albums():
-            li = xbmcgui.ListItem(a.title)
-            li.setArt({
-                'thumb': a.get_cover('big'),
-                'icon': a.get_cover('small')
-            })
-            url = build_url({'mode': 'album', 'id': a.id})
+        elif mode == 'album':
+            xbmc.log("DeezerKodi: Displaying user albums ...", xbmc.LOGDEBUG)
+            items = self.albums_li()
 
-            items.append((url, li, True))
+        elif mode == 'artist':
+            xbmc.log("DeezerKodi: Displaying user artists ...", xbmc.LOGDEBUG)
+            items = self.artists_li()
 
-        for a in self.get_favourites_artists():
-            li = xbmcgui.ListItem(a.name)
-            li.setArt({
-                'thumb': a.get_picture('big'),
-                'icon': a.get_picture('small')
-            })
-            url = build_url({'mode': 'artist', 'id': a.id})
-
-            items.append((url, li, True))
-
-        for play in self.get_playlists():
-            li = xbmcgui.ListItem(play.title)
-            li.setArt({
-                'thumb': play.get_picture('big'),
-                'icon': play.get_picture('small')
-            })
-            url = build_url({'mode': 'playlist', 'id': play.id})
-
-            items.append((url, li, True))
+        else:
+            xbmc.log("DeezerKodi: Displaying user ...", xbmc.LOGDEBUG)
+            items = self.listItems()
 
         xbmcplugin.addDirectoryItems(addon_handle, items, len(items))
         if end:
@@ -440,9 +503,8 @@ class User(DeezerObject):
         items = []
 
         for user in self.get_followings():
-            li = xbmcgui.ListItem(user.name)
-            url = build_url({'mode': 'user', 'id': user.id})
-
+            li = user.listItem()
+            url = build_url({'mode': 'user_profile', 'id': user.id})
             items.append((url, li, True))
 
         xbmcplugin.addDirectoryItems(addon_handle, items, len(items))
@@ -502,6 +564,37 @@ class Playlist(DeezerObject):
 
         return ''
 
+    def listItem(self):
+        """
+        Returns this playlist as a ListItem.
+
+        :return: ListItem
+        """
+        li = xbmcgui.ListItem(self.title)
+        li.setArt({
+            'thumb': self.get_picture('big'),
+            'icon': self.get_picture('small')
+        })
+        return li
+
+    def listItems(self):
+        """
+        Returns the content of this playlist as a list of ListItem.
+
+        :return: a list of ListItem
+        """
+        items = []
+
+        for track in self.get_tracks():
+            li = track.listItem()
+            li.setProperty('IsPlayable', 'true')
+
+            url = build_url({'mode': 'track', 'id': track.id, 'container': 'playlist'})
+
+            items.append((url, li))
+
+        return items
+
     def display(self, end=True):
         """
         Display Playlist as a kodi listing.\n
@@ -512,28 +605,7 @@ class Playlist(DeezerObject):
         """
         xbmc.log("DeezerKodi: Displaying playlist ...", xbmc.LOGDEBUG)
 
-        items = []
-
-        for track in self.get_tracks():
-            track_album = track.get_album()
-
-            li = xbmcgui.ListItem(track.title)
-            li.setInfo('music', {
-                'duration': track.duration,
-                'album': track_album.title,
-                'artist': track.get_artist().name,
-                'title': track.title,
-                'mediatype': 'song'
-            })
-            li.setArt({
-                'thumb': track_album.get_cover('big'),
-                'icon': track_album.get_cover('small')
-            })
-            li.setProperty('IsPlayable', 'true')
-
-            url = build_url({'mode': 'track', 'id': track.id, 'container': 'playlist'})
-
-            items.append((url, li))
+        items = self.listItems()
 
         xbmcplugin.addDirectoryItems(addon_handle, items, len(items))
         xbmcplugin.setContent(addon_handle, 'songs')
@@ -580,14 +652,13 @@ class Track(DeezerObject):
 
         return Track(self.connection, self.alternative)
 
-    def play(self):
+    def listItem(self):
         """
-        Play a song directly, do not put it in queue.
-        """
-        xbmc.log("DeezerKodi: Starting to play track id {}".format(self.id), xbmc.LOGDEBUG)
-        url = self.connection.make_request_streaming(self.id, 'track')
+        Returns a ListItem corresponding to this track
 
-        li = xbmcgui.ListItem()
+        :return: xbmcgui.ListItem
+        """
+        li = xbmcgui.ListItem(self.title)
         li.setInfo('music', {
             'duration': self.duration,
             'album': self.get_album().title,
@@ -595,8 +666,22 @@ class Track(DeezerObject):
             'title': self.title,
             'mediatype': 'song'
         })
+        li.setArt({
+            'thumb': self.get_album().get_cover('big'),
+            'icon': self.get_album().get_cover('small')
+        })
+        li.setProperty('IsPlayable', 'true')
 
-        xbmc.Player().play(url, li)
+        return li
+
+    def play(self):
+        """
+        Play a song directly, do not put it in queue.
+        """
+        xbmc.log("DeezerKodi: Starting to play track id {}".format(self.id), xbmc.LOGDEBUG)
+        url = self.connection.make_request_streaming(self.id, 'track')
+
+        xbmc.Player().play(url, self.listItem())
 
 
 class Album(DeezerObject):
@@ -645,6 +730,37 @@ class Album(DeezerObject):
 
         return ''
 
+    def listItem(self):
+        """
+        Returns this album as a ListItem
+
+        :return: xbmcgui.ListItem
+        """
+        li = xbmcgui.ListItem(self.title)
+        li.setArt({
+            'thumb': self.get_cover('big'),
+            'icon': self.get_cover('small')
+        })
+        return li
+
+    def listItems(self):
+        """
+        Return the current album as a list of ListItem
+
+        :return: list( xbmcgui.ListItem )
+        """
+        items = []
+
+        for track in self.get_tracks():
+            li = track.listItem()
+            li.setProperty('IsPlayable', 'true')
+
+            url = build_url({'mode': 'track', 'id': track.id, 'container': 'album'})
+
+            items.append((url, li))
+
+        return items
+
     def display(self, end=True):
         """
         Display Album as a kodi listing.\n
@@ -655,28 +771,7 @@ class Album(DeezerObject):
         """
         xbmc.log("DeezerKodi: Displaying album ...", xbmc.LOGDEBUG)
 
-        items = []
-        thumb = self.get_cover('big')
-        icon = self.get_cover('small')
-
-        for track in self.get_tracks():
-            li = xbmcgui.ListItem(track.title)
-            li.setInfo('music', {
-                'duration': track.duration,
-                'album': self.title,
-                'artist': track.get_artist().name,
-                'title': track.title,
-                'mediatype': 'song'
-            })
-            li.setArt({
-                'thumb': thumb,
-                'icon': icon
-            })
-            li.setProperty('IsPlayable', 'true')
-
-            url = build_url({'mode': 'track', 'id': track.id, 'container': 'album'})
-
-            items.append((url, li))
+        items = self.listItems()
 
         xbmcplugin.addDirectoryItems(addon_handle, items, len(items))
         xbmcplugin.setContent(addon_handle, 'songs')
@@ -742,6 +837,34 @@ class Artist(DeezerObject):
 
         return ''
 
+    def listItem(self):
+        """
+        Returns the Artist representation in menus
+
+        :return: ListItem
+        """
+        li = xbmcgui.ListItem(self.name)
+        li.setArt({
+            'thumb': self.get_picture('big'),
+            'icon': self.get_picture('small'),
+        })
+        return li
+
+    def listItems(self):
+        """
+        Returns the content of this artist (albums)
+
+        :return: a list of ListItem
+        """
+        items = []
+
+        for album in self.get_albums():
+            li = album.listItem()
+            url = build_url({'mode': 'album', 'id': album.id})
+            items.append((url, li, True))
+
+        return items
+
     def display(self, end=True):
         """
         Display Artist as a kodi listing.\n
@@ -751,18 +874,8 @@ class Artist(DeezerObject):
             True by default
         """
         xbmc.log("DeezerKodi: Displaying artist ...", xbmc.LOGDEBUG)
-        items = []
 
-        for album in self.get_albums():
-            li = xbmcgui.ListItem(album.title)
-            li.setArt({
-                'thumb': album.get_cover('big'),
-                'icon': album.get_cover('small')
-            })
-
-            url = build_url({'mode': 'album', 'id': album.id})
-
-            items.append((url, li, True))
+        items = self.listItems()
 
         xbmcplugin.addDirectoryItems(addon_handle, items, len(items))
         xbmcplugin.setContent(addon_handle, 'artists')
@@ -849,14 +962,8 @@ class Search(object):
         for al in self.data:
             album = Album(self.connection, al)
 
-            li = xbmcgui.ListItem(album.title)
-            li.setArt({
-                'thumb': album.get_cover('big'),
-                'icon': album.get_cover('small')
-            })
-
+            li = album.listItem()
             url = build_url({'mode': 'album', 'id': album.id})
-
             items.append((url, li, True))
 
         xbmcplugin.addDirectoryItems(addon_handle, items, len(items))

@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<addons><addon id="plugin.audio.deezer" name="Deezer" provider-name="Valentin271" version="0.2.0~alpha3">
+<addons><addon id="plugin.audio.deezer" name="Deezer" provider-name="Valentin271" version="0.2.0~alpha6">
 
     <requires>
 
@@ -22,9 +22,10 @@
         <disclaimer lang="en">This addon was not provided by Deezer.</disclaimer>
 	    <news>
 [v0.2.0]
-- Added possibility to browse favorites albums
-- Added possibility to browse favorites artists
+- Added possibility to browse favorite albums
+- Added possibility to browse favorite artists
 - Canceling a search won't show an error anymore
+- Added icons when displaying user's playlists, albums and artists
 
 [v0.1.3]
 - Addon is now compatible with Kodi 19

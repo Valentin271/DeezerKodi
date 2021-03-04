@@ -70,7 +70,7 @@ def main_menu():
     xbmc.log('DeezerKodi: Getting main menu content', xbmc.LOGDEBUG)
     items = [
         (build_url({'mode': 'family'}), xbmcgui.ListItem('Family'), True),
-        (build_url({'mode': 'user', 'id': 'me'}), xbmcgui.ListItem('Personal'), True),
+        (build_url({'mode': 'user_profile', 'id': 'me'}), xbmcgui.ListItem('Personal'), True),
         (build_url({'mode': 'search-menu'}), xbmcgui.ListItem('Search'), True)
     ]
     return items
@@ -102,11 +102,11 @@ if MODE is None:
     xbmcplugin.endOfDirectory(addon_handle)
 
 
-# display a user
-elif MODE == 'user':
-    xbmc.log("DeezerKodi: Mode 'user'", xbmc.LOGINFO)
+# display a user profile, albums, playlists etc
+elif MODE.startswith('user_'):
+    xbmc.log("DeezerKodi: Mode '" + MODE + "'", xbmc.LOGINFO)
     me = API.get_user(ARGS['id'])
-    me.display()
+    me.display(MODE.split('_')[1])
 
 
 # display family profiles (actually main profile's followings since API doesn't give profiles)
@@ -182,6 +182,11 @@ elif MODE == 'artist':
     xbmc.log("DeezerKodi: Mode 'artist'", xbmc.LOGINFO)
     artist = API.get_artist(ARGS['id'])
     artist.display()
+
+
+# in case MODE is not recognized
+else:
+    xbmc.log("DeezerKodi: Mode '" + MODE + "' unknown", xbmc.LOGWARNING)
 
 # Saving connection with token for next time
 CONNECTION.save()
