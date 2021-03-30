@@ -786,17 +786,27 @@ class Artist(DeezerObject):
     Deezer Artist object. Has a collection of album, a top, ...
     """
 
-    def get_albums(self):
+    def get_albums(self, next_url=None):
         """
         Return all albums from this artist.
 
+        :param str next_url: Url of the next part of the playlist, used for recursion.
+            Shouldn't be used otherwise.
         :return: List of Album
         """
         xbmc.log("DeezerKodi: Getting albums of artist id {}".format(self.id), xbmc.LOGDEBUG)
         albums = []
 
-        for a in self.connection.make_request('artist', self.id, 'albums')['data']:
+        if next_url is not None:
+            albums_response = self.connection.make_request_url(next_url)
+        else:
+            albums_response = self.connection.make_request('artist', self.id, 'albums');
+
+        for a in albums_response['data']:
             albums.append(Album(self.connection, a))
+
+        if 'next' in albums_response:
+            albums += self.get_albums(albums_response['next'])
 
         return albums
 
