@@ -26,9 +26,9 @@ class Playlist(DeezerObject):
         else:
             tracks_data = self.connection.make_request('playlist', self.id, 'tracks')
 
-        for tr in tracks_data['data']:
-            if tr['readable']:
-                tracks.append(Track(self.connection, tr))
+        for trk in tracks_data['data']:
+            if trk['readable']:
+                tracks.append(Track(self.connection, trk))
 
         tracks.reverse()
         return tracks
@@ -40,7 +40,8 @@ class Playlist(DeezerObject):
         :param str size: Size of the picture, can be [small, medium, big, xl]
         :return: The url of the picture
         """
-        xbmc.log("DeezerKodi: Trying to get playlist picture in size {}".format(size), xbmc.LOGDEBUG)
+        xbmc.log("DeezerKodi: Trying to get playlist picture in size {}".format(size),
+                 xbmc.LOGDEBUG)
 
         if size in ['small', 'medium', 'big', 'xl'] and hasattr(self, 'picture_' + size):
             return self.__dict__['picture_' + size]

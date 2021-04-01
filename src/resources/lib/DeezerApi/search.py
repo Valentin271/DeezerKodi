@@ -50,8 +50,8 @@ class Search(object):
         xbmc.log("DeezerKodi: Displaying tracks search result ...", xbmc.LOGDEBUG)
         items = []
 
-        for tr in self.data:
-            track_obj = Track(self.connection, tr)
+        for trk in self.data:
+            track_obj = Track(self.connection, trk)
             track_album = track_obj.get_album()
 
             li = xbmcgui.ListItem(track_obj.title)
@@ -84,8 +84,8 @@ class Search(object):
         xbmc.log("DeezerKodi: Displaying albums search result ...", xbmc.LOGDEBUG)
         items = []
 
-        for al in self.data:
-            album_obj = Album(self.connection, al)
+        for alb in self.data:
+            album_obj = Album(self.connection, alb)
 
             li = album_obj.listItem()
             url = build_url({'mode': 'album', 'id': album_obj.id})
@@ -104,8 +104,8 @@ class Search(object):
         xbmc.log("DeezerKodi: Displaying artists search result ...", xbmc.LOGDEBUG)
         items = []
 
-        for ar in self.data:
-            artist_obj = Artist(self.connection, ar)
+        for art in self.data:
+            artist_obj = Artist(self.connection, art)
 
             li = xbmcgui.ListItem(artist_obj.name)
             li.setArt({

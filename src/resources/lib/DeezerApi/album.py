@@ -22,9 +22,9 @@ class Album(DeezerObject):
         xbmc.log("DeezerKodi: Getting tracks of album id {}".format(self.id), xbmc.LOGDEBUG)
         tracks = []
 
-        for tr in self.tracks['data']:
-            if tr['readable']:
-                tracks.append(Track(self.connection, tr))
+        for track in self.tracks['data']:
+            if track['readable']:
+                tracks.append(Track(self.connection, track))
 
         return tracks
 

@@ -83,7 +83,10 @@ class Api(object):
         """
         from .search import Search
         xbmc.log(
-            "DeezerKodi: API: Searching {query} with filter {filter}".format(query=query, filter=filter),
+            "DeezerKodi: API: Searching {query} with filter {filter}".format(
+                query=query,
+                filter=filter
+            ),
             xbmc.LOGDEBUG
         )
         result = self.connection.make_request('search', method=filter, parameters={'q': query})

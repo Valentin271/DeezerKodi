@@ -40,7 +40,8 @@ class Track(DeezerObject):
 
         :return: Track object
         """
-        xbmc.log("DeezerKodi: Getting alternative songs of track id {}".format(self.id), xbmc.LOGDEBUG)
+        xbmc.log("DeezerKodi: Getting alternative songs of track id {}".format(self.id),
+                 xbmc.LOGDEBUG)
         if not hasattr(self, 'alternative'):
             self._update_data()
 

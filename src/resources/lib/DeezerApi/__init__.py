@@ -1,4 +1,8 @@
 # -*- coding: utf-8 -*-
+"""
+DeezerApi module.
+Provide a simple wrapper around Deezer API (with streaming).
+"""
 
 import hashlib
 import json
@@ -68,8 +72,8 @@ class Connection(object):
         path = xbmc.translatePath('special://temp/connection.pickle')
         xbmc.log("DeezerKodi: Connection: Saving connection to file {}".format(path), xbmc.LOGDEBUG)
 
-        with open(path, 'wb') as f:
-            pickle.dump(self, f, pickle.HIGHEST_PROTOCOL)
+        with open(path, 'wb') as file:
+            pickle.dump(self, file, pickle.HIGHEST_PROTOCOL)
 
     @staticmethod
     def load():
@@ -79,10 +83,11 @@ class Connection(object):
         :return: a Connection object
         """
         path = xbmc.translatePath('special://temp/connection.pickle')
-        xbmc.log("DeezerKodi: Connection: Getting connection from file {}".format(path), xbmc.LOGDEBUG)
+        xbmc.log("DeezerKodi: Connection: Getting connection from file {}".format(path),
+                 xbmc.LOGDEBUG)
 
-        with open(path, 'rb') as f:
-            cls = pickle.load(f)
+        with open(path, 'rb') as file:
+            cls = pickle.load(file)
         return cls
 
     def _obtain_access_token(self):
@@ -103,23 +108,24 @@ class Connection(object):
         if 'access_token' in json_response:
             self._access_token = json_response['access_token']
         else:
+            # if error is known
             if 'error' in json_response and json_response['error']['code'] == QuotaException.CODE:
                 raise QuotaException(json_response['error']['message'])
-            else:
-                raise DeezerException("Could not obtain access token!")
+
+            raise DeezerException("Could not obtain access token!")
 
     @staticmethod
-    def _merge_two_dicts(x, y):
+    def _merge_two_dicts(lhs, rhs):
         """
         Given two dicts, merge them into a new dict as a shallow copy.
 
-        :param dict x: First dict
-        :param dict y: Second dict
+        :param dict lhs: First dict
+        :param dict rhs: Second dict
         :return: Merged dict
         """
-        z = x.copy()
-        z.update(y)
-        return z
+        res = lhs.copy()
+        res.update(rhs)
+        return res
 
     def make_request(self, service, id='', method='', parameters={}):
         """

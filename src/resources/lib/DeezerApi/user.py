@@ -4,8 +4,8 @@ import xbmc
 import xbmcgui
 import xbmcplugin
 
-from .deezer_object import DeezerObject
 from resources.lib.DeezerApi.build_url import build_url, addon_handle
+from .deezer_object import DeezerObject
 
 
 class User(DeezerObject):
@@ -91,8 +91,8 @@ class User(DeezerObject):
         flow = []
         flow_data = self.connection.make_request('user', self.id, 'flow')
 
-        for tr in flow_data['data']:
-            flow.append(Track(self.connection, tr))
+        for trk in flow_data['data']:
+            flow.append(Track(self.connection, trk))
 
         return flow
 
@@ -108,8 +108,8 @@ class User(DeezerObject):
         history = []
         history_data = self.connection.make_request('user', self.id, 'history')
 
-        for tr in history_data['data']:
-            history.append(Track(self.connection, tr))
+        for trk in history_data['data']:
+            history.append(Track(self.connection, trk))
 
         return history
 
@@ -125,8 +125,8 @@ class User(DeezerObject):
         tracks = []
         tracks_data = self.connection.make_request('user', self.id, 'recommendations/tracks')
 
-        for tr in tracks_data['data']:
-            tracks.append(Track(self.connection, tr))
+        for trk in tracks_data['data']:
+            tracks.append(Track(self.connection, trk))
 
         return tracks
 
@@ -206,9 +206,9 @@ class User(DeezerObject):
         """
         items = []
 
-        for a in self.get_favourites_albums():
-            li = a.listItem()
-            url = build_url({'mode': 'album', 'id': a.id})
+        for alb in self.get_favourites_albums():
+            li = alb.listItem()
+            url = build_url({'mode': 'album', 'id': alb.id})
             items.append((url, li, True))
 
         return items
@@ -221,9 +221,9 @@ class User(DeezerObject):
         """
         items = []
 
-        for a in self.get_favourites_artists():
-            li = a.listItem()
-            url = build_url({'mode': 'artist', 'id': a.id})
+        for alb in self.get_favourites_artists():
+            li = alb.listItem()
+            url = build_url({'mode': 'artist', 'id': alb.id})
             items.append((url, li, True))
 
         return items

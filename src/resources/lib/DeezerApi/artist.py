@@ -21,10 +21,10 @@ class Artist(DeezerObject):
         xbmc.log("DeezerKodi: Getting albums of artist id {}".format(self.id), xbmc.LOGDEBUG)
         albums = []
 
-        albums_response = self.connection.make_request('artist', self.id, 'albums');
+        albums_response = self.connection.make_request('artist', self.id, 'albums')
 
-        for a in albums_response['data']:
-            albums.append(Album(self.connection, a))
+        for alb in albums_response['data']:
+            albums.append(Album(self.connection, alb))
 
         return albums
 
@@ -38,8 +38,8 @@ class Artist(DeezerObject):
         xbmc.log("DeezerKodi: Getting top tracks of artist id {}".format(self.id), xbmc.LOGDEBUG)
         top = []
 
-        for tr in self.connection.make_request('artist', self.id, 'top')['data']:
-            top.append(Track(self.connection, tr))
+        for trk in self.connection.make_request('artist', self.id, 'top')['data']:
+            top.append(Track(self.connection, trk))
 
         return top
 

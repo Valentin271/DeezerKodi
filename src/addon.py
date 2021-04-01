@@ -44,7 +44,8 @@ CONNECTION = None
 try:
     CONNECTION = Connection.load()
 except IOError:
-    xbmc.log("DeezerKodi: Failed to get token from file, trying API request instead", xbmc.LOGWARNING)
+    xbmc.log("DeezerKodi: Failed to get token from file, trying API request instead",
+             xbmc.LOGWARNING)
 
     # If file does not exist, try to get token from API
     try:
@@ -57,7 +58,7 @@ except IOError:
     except QuotaException:
         xbmc.log("DeezerKodi: Cannot get token from API", xbmc.LOGERROR)
         xbmcgui.Dialog().ok("Error", "Quota limit exceeded, please wait and retry.")
-        exit()
+        sys.exit()
 
 API = Api(CONNECTION)
 
