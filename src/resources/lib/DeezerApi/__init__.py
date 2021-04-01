@@ -139,11 +139,18 @@ class Connection(object):
             xbmc.LOGDEBUG
         )
 
-        base_url = self._API_BASE_URL.format(service=service, id=id, method=method)
-        response = requests.get(base_url, params=self._merge_two_dicts(
+        url = self._API_BASE_URL.format(service=service, id=id, method=method)
+        response = requests.get(url, params=self._merge_two_dicts(
             {'output': 'json', 'access_token': self._access_token}, parameters
         ))
-        return json.loads(response.text)
+
+        response = json.loads(response.text)
+
+        # if there is a next url, call it
+        if 'next' in response:
+            response['data'] += Connection.make_request_url(response['next'])['data']
+
+        return response
 
     @staticmethod
     def make_request_url(url):
@@ -155,7 +162,14 @@ class Connection(object):
         """
         xbmc.log('DeezerKodi: Connection: Making custom request ...', xbmc.LOGDEBUG)
         response = requests.get(url)
-        return json.loads(response.text)
+
+        response = json.loads(response.text)
+
+        # if there is a next url, call it and append data
+        if 'next' in response:
+            response['data'] += Connection.make_request_url(response['next'])['data']
+
+        return response
 
     def make_request_streaming(self, id='', type='track'):
         """

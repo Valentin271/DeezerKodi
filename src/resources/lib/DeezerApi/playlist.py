@@ -12,22 +12,16 @@ class Playlist(DeezerObject):
     Deezer Playlist. A list of tracks with a playlist picture.
     """
 
-    def get_tracks(self, next_url=None):
+    def get_tracks(self):
         """
         Return playlist's tracks.
-
-        :param str next_url: Url of the next part of the playlist, used for recursion.
-            Shouldn't be used otherwise.
         :return: A list of Track
         """
         from .track import Track
         xbmc.log("DeezerKodi: Getting playlist's tracks", xbmc.LOGDEBUG)
 
         tracks = []
-
-        if next_url is not None:
-            tracks_data = self.connection.make_request_url(next_url)
-        elif hasattr(self, 'tracks'):
+        if hasattr(self, 'tracks') and len(self.tracks) == self.nb_tracks:
             tracks_data = self.tracks
         else:
             tracks_data = self.connection.make_request('playlist', self.id, 'tracks')
@@ -35,9 +29,6 @@ class Playlist(DeezerObject):
         for tr in tracks_data['data']:
             if tr['readable']:
                 tracks.append(Track(self.connection, tr))
-
-        if 'next' in tracks_data:
-            tracks += self.get_tracks(tracks_data['next'])
 
         tracks.reverse()
         return tracks
