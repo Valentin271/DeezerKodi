@@ -7,8 +7,9 @@ import xbmcaddon
 import xbmcgui
 import xbmcplugin
 
-from resources.lib.DeezerApi import Connection, Api, build_url, addon_handle
+from resources.lib.DeezerApi.build_url import build_url, addon_handle
 from resources.lib.deezer_exception import QuotaException
+from resources.lib.DeezerApi import Connection, Api
 
 # Initializing addon
 ADDON = xbmcaddon.Addon('plugin.audio.deezer')
