@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<addons><addon id="plugin.audio.deezer" name="Deezer" provider-name="Valentin271" version="0.2.1">
+<addons><addon id="plugin.audio.deezer" name="Deezer" provider-name="Valentin271" version="0.3.0">
 
     <requires>
 
@@ -21,6 +21,9 @@
         <description lang="en">This addon allows you to stream music from Deezer. You can browse your playlists and loved tracks, search for tracks, artists and albums. A premium account is REQUIRED.</description>
         <disclaimer lang="en">This addon was not provided by Deezer.</disclaimer>
 	    <news>
+[v0.3.0]
+- Every listing will now show all elements (no more limited to 25 on certain cases)
+
 [v0.2.1]
 - Artist's albums now show more than 25 items
 
