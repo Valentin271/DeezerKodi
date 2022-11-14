@@ -30,7 +30,6 @@ class Playlist(DeezerObject):
             if trk['readable']:
                 tracks.append(Track(self.connection, trk))
 
-        tracks.reverse()
         return tracks
 
     def get_picture(self, size=''):
