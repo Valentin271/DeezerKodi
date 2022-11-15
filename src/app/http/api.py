@@ -8,9 +8,9 @@ import pickle
 
 import requests
 import xbmc
-import xbmcaddon
 import xbmcvfs
 
+from lib import Settings
 from lib.exceptions import ApiExceptionFinder, CredentialsException
 from lib.helpers.logger import Logger
 
@@ -46,10 +46,10 @@ class Api(object):
                 cls.__INSTANCE = cls.load()
             except IOError:
                 Logger.debug("Api instance not saved, trying to get token ...")
-                addon = xbmcaddon.Addon('plugin.audio.deezer')
+
                 cls.__INSTANCE = cls(
-                    addon.getSetting('username'),
-                    addon.getSetting('password')
+                    Settings.get('username'),
+                    Settings.get('password')
                 )
 
         return cls.__INSTANCE
