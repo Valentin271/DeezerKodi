@@ -5,6 +5,7 @@ from ..views.artist_view import ArtistView
 from ..views.base_view import BaseView
 from ..views.list_view import ListView
 from ..views.playlist_view import PlaylistView
+from ..views.track_view import TrackView
 from ..views.user_view import UserView
 
 
@@ -32,7 +33,8 @@ class FamilyActions(BaseActions):
             BaseView({'path': '/family/{}/albums'.format(identifiant)}, 'Albums', True)
             .set_icon(icons + '/albums.png'),
             BaseView({'path': '/family/{}/artists'.format(identifiant)}, 'Artists', True)
-            .set_icon(icons + '/artists.png')
+            .set_icon(icons + '/artists.png'),
+            BaseView({'path': '/family/{}/flow'.format(identifiant)}, 'Flow', True)
         ]
 
     @classmethod
@@ -64,3 +66,13 @@ class FamilyActions(BaseActions):
         """
         response = Api.instance().request('user', identifiant, 'artists')
         return ListView(ArtistView, response)
+
+    @classmethod
+    def flow(cls, identifiant):
+        """
+        Get the flow tracks of a family profile
+
+        :param identifiant:user ID
+        """
+        response = Api.instance().request('user', identifiant, 'flow')
+        return ListView(TrackView, response)

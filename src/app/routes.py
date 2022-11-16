@@ -25,11 +25,13 @@ def load(router):
     router.add("/family/{identifiant}/playlists", FamilyActions.playlists)
     router.add("/family/{identifiant}/albums", FamilyActions.albums)
     router.add("/family/{identifiant}/artists", FamilyActions.artists)
+    router.add("/family/{identifiant}/flow", FamilyActions.flow)
 
     router.add("/personal", PersonalActions.index)
     router.add("/personal/playlists", PersonalActions.playlists)
     router.add("/personal/albums", PersonalActions.albums)
     router.add("/personal/artists", PersonalActions.artists)
+    router.add("/personal/flow", PersonalActions.flow)
 
     router.add("/playlists/{identifiant}", PlaylistsActions.show)
     router.add("/albums/{identifiant}", AlbumsActions.show)
