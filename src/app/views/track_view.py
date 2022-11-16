@@ -17,12 +17,16 @@ class TrackView(BaseView):
             False
         )
 
+        date = None
+        if 'time_add' in data:
+            date = datetime.fromtimestamp(data.get('time_add')).strftime("%d.%m.%Y")
+
         self._item.setInfo('music', {
-            'duration': data['duration'],
+            'duration': data.get('duration'),
             'album': data.get('album', {}).get('title'),
             'artist': data.get('artist', {}).get('name'),
-            'title': data['title'],
-            'date': datetime.fromtimestamp(data['time_add']).strftime("%d.%m.%Y"),
+            'title': data.get('title'),
+            'date': date,
             'mediatype': 'song'
         })
         self._item.setArt({
