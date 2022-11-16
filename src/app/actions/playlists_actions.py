@@ -24,6 +24,7 @@ class PlaylistsActions(BaseActions):
 
         cls.app.sortable(
             xbmcplugin.SORT_METHOD_UNSORTED,
+            xbmcplugin.SORT_METHOD_DATE,
             xbmcplugin.SORT_METHOD_TITLE,
             xbmcplugin.SORT_METHOD_ALBUM,
             xbmcplugin.SORT_METHOD_ARTIST,
