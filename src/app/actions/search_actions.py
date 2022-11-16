@@ -18,15 +18,15 @@ class SearchActions(BaseActions):
         """
         Returns the search menu
         """
-        icons = cls.args.get('path') + '/resources/icons'
+        icons = cls.app.args().get('path') + '/resources/icons'
 
         items = [
             BaseView({'path': '/search/tracks'}, 'Search tracks', True)
-                .set_icon(icons + '/search.png'),
+            .set_icon(icons + '/search.png'),
             BaseView({'path': '/search/albums'}, 'Search albums', True)
-                .set_icon(icons + '/search.png'),
+            .set_icon(icons + '/search.png'),
             BaseView({'path': '/search/artists'}, 'Search artists', True)
-                .set_icon(icons + '/search.png')
+            .set_icon(icons + '/search.png')
         ]
 
         return items

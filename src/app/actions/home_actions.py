@@ -14,13 +14,13 @@ class HomeActions(BaseActions):
         """
         Returns the main menu of the application.
         """
-        icons = cls.args.get('path') + '/resources/icons'
+        icons = cls.app.args().get('path') + '/resources/icons'
 
         items = [
             BaseView({'path': '/family'}, 'Family', True),
             BaseView({'path': '/personal'}, 'Personal', True),
             BaseView({'path': '/search'}, 'Search', True)
-                .set_icon(icons + '/search.png')
+            .set_icon(icons + '/search.png')
         ]
 
         return items

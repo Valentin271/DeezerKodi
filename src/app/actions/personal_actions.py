@@ -13,15 +13,15 @@ class PersonalActions(BaseActions):
     @classmethod
     def index(cls):
         """Displays the menu for a personal account (or main profile for family account)."""
-        icons = cls.args.get('path') + '/resources/icons'
+        icons = cls.app.args().get('path') + '/resources/icons'
 
         return [
             BaseView({'path': '/personal/playlists'}, 'Playlists', True)
-                .set_icon(icons + '/playlists.png'),
+            .set_icon(icons + '/playlists.png'),
             BaseView({'path': '/personal/albums'}, 'Albums', True)
-                .set_icon(icons + '/albums.png'),
+            .set_icon(icons + '/albums.png'),
             BaseView({'path': '/personal/artists'}, 'Artists', True)
-                .set_icon(icons + '/artists.png')
+            .set_icon(icons + '/artists.png')
         ]
 
     @classmethod

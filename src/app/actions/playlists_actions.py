@@ -1,3 +1,5 @@
+import xbmcplugin
+
 from app.actions.base_actions import BaseActions
 from app.http import Api
 from app.views.list_view import ListView
@@ -19,4 +21,12 @@ class PlaylistsActions(BaseActions):
         # because data is significantly lighter
         # and we don't need all the artist info (only the name)
         response = Api.instance().request('playlist', identifiant)
+
+        cls.app.sortable(
+            xbmcplugin.SORT_METHOD_UNSORTED,
+            xbmcplugin.SORT_METHOD_TITLE,
+            xbmcplugin.SORT_METHOD_ALBUM,
+            xbmcplugin.SORT_METHOD_ARTIST,
+        )
+
         return ListView(TrackView, response['tracks'])

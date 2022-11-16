@@ -22,7 +22,7 @@ class TracksActions(BaseActions):
         if url.startswith('http'):
             Logger.debug("Playing track " + identifiant)
             item = xbmcgui.ListItem(path=url)
-            xbmcplugin.setResolvedUrl(cls.args.addon_handle, True, listitem=item)
+            xbmcplugin.setResolvedUrl(cls.app.args().addon_handle, True, listitem=item)
         else:
             Logger.warn("Unplayable track " + identifiant)
             xbmcgui.Dialog().notification(
@@ -31,6 +31,6 @@ class TracksActions(BaseActions):
                 xbmcgui.NOTIFICATION_WARNING,
                 sound=False
             )
-            xbmcplugin.setResolvedUrl(cls.args.addon_handle, False, xbmcgui.ListItem())
+            xbmcplugin.setResolvedUrl(cls.app.args().addon_handle, False, xbmcgui.ListItem())
 
         return []

@@ -24,11 +24,11 @@ class Router(object):
         """
         self.__routes[route] = action
 
-    def route(self, args):
+    def route(self, app):
         """
         Call the route action corresponding to the current location in the application.
 
-        :param src.app.Arguments args: Application's arguments
+        :param src.app.Application app: Application's arguments
         :return: a list of items to display
         """
         location = self.__location.split('/')
@@ -52,7 +52,7 @@ class Router(object):
 
             if action is not None:
                 # Get the action's class, giving it app arguments
-                action.__self__.args = args
+                action.__self__.app = app
                 return action(**parameters)
 
         return None

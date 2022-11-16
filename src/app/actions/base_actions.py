@@ -1,8 +1,11 @@
 class BaseActions(object):
     """Base class for defining actions"""
 
-    args = None
-    """Application's arguments"""
+    app = None
+    """
+    Application reference
+    :type: src.app.Application
+    """
 
     @classmethod
     def index(cls):

@@ -24,15 +24,15 @@ class FamilyActions(BaseActions):
 
         :param identifiant: user ID
         """
-        icons = cls.args.get('path') + '/resources/icons'
+        icons = cls.app.args().get('path') + '/resources/icons'
 
         return [
             BaseView({'path': '/family/{}/playlists'.format(identifiant)}, 'Playlists', True)
-                .set_icon(icons + '/playlists.png'),
+            .set_icon(icons + '/playlists.png'),
             BaseView({'path': '/family/{}/albums'.format(identifiant)}, 'Albums', True)
-                .set_icon(icons + '/albums.png'),
+            .set_icon(icons + '/albums.png'),
             BaseView({'path': '/family/{}/artists'.format(identifiant)}, 'Artists', True)
-                .set_icon(icons + '/artists.png')
+            .set_icon(icons + '/artists.png')
         ]
 
     @classmethod

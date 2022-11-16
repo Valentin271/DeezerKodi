@@ -16,13 +16,13 @@ class ArtistsActions(BaseActions):
 
         :param identifiant: artist's ID
         """
-        icons = cls.args.get('path') + '/resources/icons'
+        icons = cls.app.args().get('path') + '/resources/icons'
 
         return [
             BaseView({'path': '/artists/{}/top'.format(identifiant)}, 'Top', True)
-                .set_icon(icons + '/chart.png'),
+            .set_icon(icons + '/chart.png'),
             BaseView({'path': '/artists/{}/albums'.format(identifiant)}, 'Albums', True)
-                .set_icon(icons + '/albums.png'),
+            .set_icon(icons + '/albums.png'),
         ]
 
     @classmethod

@@ -33,6 +33,13 @@ class Application(object):
         self.__args.set('path', self.__addon.getAddonInfo('path'))
         routes.load(self.__router)
 
+    def args(self):
+        """
+        Arguments getter
+        :return: Application's arguments
+        """
+        return self.__args
+
     def run(self):
         """
         Run the application. Starts the router and return a list to display by Kodi.
@@ -42,7 +49,7 @@ class Application(object):
         items = []
 
         try:
-            items = self.__router.route(self.__args)
+            items = self.__router.route(self)
         except OAuthException as e:
             xbmcgui.Dialog().notification(e.header, "Refreshing token ...", "", 1000, False)
             Api.clean_cache()
@@ -64,3 +71,12 @@ class Application(object):
 
         xbmcplugin.addDirectoryItems(self.__args.addon_handle, items, len(items))
         xbmcplugin.endOfDirectory(self.__args.addon_handle)
+
+    def sortable(self, *sorts):
+        """
+        Enable the given sort methods. Order defines UI order
+
+        :param int sorts: Sort methods to enable
+        """
+        for sort in sorts:
+            xbmcplugin.addSortMethod(self.__args.addon_handle, sort)
