@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.0.1
+
+- More robust API error handling
+
 ## v1.0.0
 
 - Added sort by default, date, title, album and artist

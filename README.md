@@ -9,7 +9,9 @@ Tracks are played in 128kb resolution as that's the max available bitrate for TV
 
 # Installation
 
-* Download the [latest release zip file](https://raw.githubusercontent.com/Valentin271/DeezerKodi/master/plugin.audio.deezer/plugin.audio.deezer-1.0.0.zip) located at `plugin.audio.deezer/plugin.audio.deezer-x.y.z.zip`.
+* Download
+  the [latest release zip file](https://raw.githubusercontent.com/Valentin271/DeezerKodi/master/plugin.audio.deezer/plugin.audio.deezer-1.0.1.zip)
+  located at `plugin.audio.deezer/plugin.audio.deezer-x.y.z.zip`.
 * Move it to your kodi box.
 * Install it by selecting `'Install from zip file'` in the addon menu.
 
@@ -27,12 +29,14 @@ If you have any compatibility issue, please refer to the Issues section.
 
 # Limitations
 
-Since Deezer API doesn't give profiles for family accounts, the workaround include asking for followings of the main account.
+Since Deezer API doesn't give profiles for family accounts, the workaround include asking for followings of the main
+account.
 So if you follow anyone on Deezer, they will appear on your family profiles.
 
 # Issues
 
-If you have any problem with the addon, feel free to open a new [issue](https://github.com/Valentin271/DeezerKodi/issues).  
+If you have any problem with the addon, feel free to open a
+new [issue](https://github.com/Valentin271/DeezerKodi/issues).  
 *Provide at least the [Kodi log file](https://kodi.wiki/view/Log_file) as an attachment (DON'T directly post it).*
 
 
@@ -40,5 +44,6 @@ If you have any problem with the addon, feel free to open a new [issue](https://
 
 ## Credits
 
-This addon is forked from [kubatek94](https://github.com/kubatek94)'s [DeezerKodi repo](https://github.com/kubatek94/DeezerKodi).
+This addon is forked from [kubatek94](https://github.com/kubatek94)'
+s [DeezerKodi repo](https://github.com/kubatek94/DeezerKodi).
 Only the streaming API, icon and fanart have been reused.
