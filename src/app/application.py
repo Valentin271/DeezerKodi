@@ -60,6 +60,7 @@ class Application(object):
             self.run()
             return
         except ApiException as e:
+            Logger.error("{}: {}".format(e.header, e.message))
             xbmcgui.Dialog().ok(e.header, e.message)
 
         if isinstance(items, ListView):

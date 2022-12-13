@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 r"""
 Create a Kodi add-on repository from add-on sources
 
@@ -52,7 +52,6 @@ __copyright__ = "Copyright 2016-2018 Chad Parry"
 __license__ = "GNU GENERAL PUBLIC LICENSE. Version 2, June 1991"
 __version__ = "2.3.0"
 
-
 import argparse
 import collections
 import gzip
@@ -67,13 +66,11 @@ import threading
 import xml.etree.ElementTree
 import zipfile
 
-
 AddonMetadata = collections.namedtuple(
     'AddonMetadata', ('id', 'version', 'root'))
 WorkerResult = collections.namedtuple(
     'WorkerResult', ('addon_metadata', 'exc_info'))
 AddonWorker = collections.namedtuple('AddonWorker', ('thread', 'result_slot'))
-
 
 INFO_BASENAME = 'addon.xml'
 METADATA_BASENAMES = (
@@ -128,13 +125,13 @@ def parse_metadata(metadata_file):
 
 def generate_checksum(archive_path, is_binary=True, checksum_path_opt=None):
     checksum_path = ('{}.md5'.format(archive_path)
-        if checksum_path_opt is None else checksum_path_opt)
+                     if checksum_path_opt is None else checksum_path_opt)
     checksum_dirname = os.path.dirname(checksum_path)
     archive_relpath = os.path.relpath(archive_path, checksum_dirname)
 
     checksum = hashlib.md5()
     with open(archive_path, 'rb') as archive_contents:
-        for chunk in iter(lambda: archive_contents.read(2**12), b''):
+        for chunk in iter(lambda: archive_contents.read(2 ** 12), b''):
             checksum.update(chunk)
     digest = checksum.hexdigest()
 
