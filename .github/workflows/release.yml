@@ -30,14 +30,21 @@ jobs:
     permissions:
       contents: write
     steps:
+      - name: Dependencies
+        run: sudo apt-get update && sudo apt-get install libxml2-utils
+
       - name: Getting version tag
         run: "echo \"RELEASE_TAG=${GITHUB_REF#refs/tags/}\" >> $GITHUB_ENV"
 
       - name: Checkout
         uses: actions/checkout@v3
 
+      - name: Changelog
+        run: xmllint --xpath /addon/extension/news plugin.audio.deezer/addon.xml | head -n -1 | tail -n +2 > /tmp/notes
+
       - name: Publish release
         run: |
           gh release create $RELEASE_TAG \
             --title "$RELEASE_TAG" \
+            --notes-file /tmp/notes \
             "plugin.audio.deezer/plugin.audio.deezer-${RELEASE_TAG:1}.zip"
