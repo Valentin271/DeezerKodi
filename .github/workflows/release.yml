@@ -9,8 +9,8 @@ jobs:
   tests:
     runs-on: ubuntu-latest
     steps:
-      - name: Dependencis
-        run: sudo apt-get update && sudo apt-get install pylint
+      - name: Dependencies
+        run: pip install -r src/requirements.txt
 
       - name: Checkout
         uses: actions/checkout@v3
