@@ -25,6 +25,7 @@
 	    <news>
 - Added Kodi 20 support
 - Dropped kodi 18 support
+- Fixed a python version incompatibility
         </news>
 
         <platform>all</platform>  <!-- Not tested -->

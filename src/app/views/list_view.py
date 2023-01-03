@@ -1,4 +1,6 @@
 """Defines the ListView class"""
+from typing import Union
+
 from app.views.album_view import AlbumView
 from app.views.artist_view import ArtistView
 from app.views.track_view import TrackView
@@ -23,7 +25,7 @@ class ListView(list):
 
     # pylint: enable=line-too-long
 
-    def __init__(self, view, items: dict | list):
+    def __init__(self, view, items: Union[dict, list]):
         """
         Creates a list of viewable item.
 
