@@ -9,11 +9,11 @@ jobs:
   tests:
     runs-on: ubuntu-latest
     steps:
-      - name: Dependencies
-        run: pip install -r src/requirements.txt
-
       - name: Checkout
         uses: actions/checkout@v3
+
+      - name: Dependencies
+        run: pip install -r src/requirements.txt
 
       - name: Lint
         run: pylint src
