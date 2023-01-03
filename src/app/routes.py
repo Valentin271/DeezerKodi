@@ -10,9 +10,10 @@ from app.actions import \
     ArtistsActions, \
     SearchActions, \
     TracksActions
+from app.http import Router
 
 
-def load(router):
+def load(router: Router):
     """
     Loads the app routes into the router.
 

@@ -1,22 +1,22 @@
-from app import Arguments
+from app import Arguments, Application
+from app.http import Router
 from mock import Mock
-from src.app.http import Router
 from testcase import TestCase
 
 
 class TestRouter(TestCase):
-    args = Arguments(['plugin://plugin.audio.deezer/', 2, ''])
+    app = Application(Arguments(['plugin://plugin.audio.deezer/', 2, '']))
 
     def test_add(self):
         mock = Mock()
         router = Router("/")
 
-        router.route(TestRouter.args)
+        router.route(TestRouter.app)
         self.assertEqual(0, mock.calls)
 
         router.add('/', mock.fn)
 
-        router.route(TestRouter.args)
+        router.route(TestRouter.app)
         self.assertCalledOnce(mock)
 
     def test_route(self):
@@ -27,7 +27,7 @@ class TestRouter(TestCase):
         router.add("/personal", mock_b.fn)
         router.add("/", mock_a.fn)
 
-        router.route(TestRouter.args)
+        router.route(TestRouter.app)
         self.assertCalledOnce(mock_a)
         self.assertNotCalled(mock_b)
 
@@ -39,7 +39,7 @@ class TestRouter(TestCase):
         router.add("/personal", mock_b.fn)
         router.add("/", mock_a.fn)
 
-        self.assertEqual('a', router.route(TestRouter.args))
+        self.assertEqual('a', router.route(TestRouter.app))
 
     def test_route_two_deep(self):
         mock_a = Mock()
@@ -49,7 +49,7 @@ class TestRouter(TestCase):
         router.add("/", mock_b.fn)
         router.add("/personal/playlists", mock_a.fn)
 
-        router.route(TestRouter.args)
+        router.route(TestRouter.app)
         self.assertCalledOnce(mock_a)
         self.assertNotCalled(mock_b)
 
@@ -61,7 +61,7 @@ class TestRouter(TestCase):
         router.add("/personal", mock_b.fn)
         router.add("/personal/playlists", mock_a.fn)
 
-        router.route(TestRouter.args)
+        router.route(TestRouter.app)
         self.assertCalledOnce(mock_a)
         self.assertNotCalled(mock_b)
 
@@ -73,7 +73,7 @@ class TestRouter(TestCase):
         router.add("/family", mock_b.fn)
         router.add("/playlists/{identifiant}", mock_a.fn)
 
-        router.route(TestRouter.args)
+        router.route(TestRouter.app)
         self.assertCalledOnce(mock_a)
         self.assertCalledWith(mock_a, identifiant="10")
         self.assertNotCalled(mock_b)
@@ -86,7 +86,7 @@ class TestRouter(TestCase):
         router.add("/family", mock_b.fn)
         router.add("/playlists/{identifiant}/track/{id_track}", mock_a.fn)
 
-        router.route(TestRouter.args)
+        router.route(TestRouter.app)
         self.assertCalledOnce(mock_a)
         self.assertCalledWith(mock_a, identifiant="10", id_track="2")
         self.assertNotCalled(mock_b)

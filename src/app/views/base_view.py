@@ -6,7 +6,7 @@ from lib.helpers import url
 class BaseView(object):
     """Defines a viewable item in Kodi."""
 
-    def __init__(self, options, label, is_dir):
+    def __init__(self, options: dict, label: str, is_dir: bool):
         """
         Initialize a Base view which can be displayed.
 
@@ -18,7 +18,7 @@ class BaseView(object):
         self._item = xbmcgui.ListItem(label)
         self.__is_dir = is_dir
 
-    def set_icon(self, path):
+    def set_icon(self, path: str):
         """
         Sets this view's icon
 
@@ -31,7 +31,7 @@ class BaseView(object):
 
         return self
 
-    def view(self, base_url):
+    def view(self, base_url: str):
         """
         Returns an item that can be displayed by Kodi.
 

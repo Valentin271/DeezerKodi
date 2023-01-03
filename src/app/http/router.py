@@ -1,6 +1,8 @@
 """
 This module contains the application's router.
 """
+from typing import Callable
+
 from lib.helpers.logger import Logger
 
 
@@ -10,12 +12,12 @@ class Router(object):
     Given a path it can determine where to go.
     """
 
-    def __init__(self, location):
+    def __init__(self, location: str):
         Logger.info("Initializing router with location {}".format(location))
         self.__location = location
         self.__routes = {}
 
-    def add(self, route, action):
+    def add(self, route: str, action: Callable):
         """
         Registers a new route associated with an action.
 

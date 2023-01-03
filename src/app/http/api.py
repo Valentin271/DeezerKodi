@@ -7,7 +7,6 @@ import hashlib
 import pickle
 
 import requests
-import xbmc
 import xbmcvfs
 
 from lib import Settings
@@ -25,7 +24,7 @@ class Api(object):
     _API_BASE_STREAMING_URL = "http://tv.deezer.com/smarttv/streaming.php"
     _API_AUTH_URL = "http://tv.deezer.com/smarttv/authentication.php"
 
-    __CACHE_FILE = xbmc.translatePath('special://temp/deezer-api.pickle')
+    __CACHE_FILE = xbmcvfs.translatePath('special://temp/deezer-api.pickle')
 
     __INSTANCE = None
 
@@ -61,7 +60,7 @@ class Api(object):
         xbmcvfs.delete(Api.__CACHE_FILE)
         cls.__INSTANCE = None
 
-    def __init__(self, username, password):
+    def __init__(self, username: str, password: str):
         """
         Instantiate a Connection object from username and password.
 
@@ -79,7 +78,7 @@ class Api(object):
         """Saves the Api instance on disk on deletion"""
         self.save()
 
-    def set_password(self, password):
+    def set_password(self, password: str):
         """
         Save md5 of user password.
 
@@ -134,7 +133,7 @@ class Api(object):
         self._access_token = response['access_token']
 
     @staticmethod
-    def _merge_two_dicts(lhs, rhs):
+    def _merge_two_dicts(lhs: dict, rhs: dict):
         """
         Given two dicts, merge them into a new dict as a shallow copy.
 
@@ -146,7 +145,13 @@ class Api(object):
         res.update(rhs)
         return res
 
-    def request(self, service, identifiant='', method='', parameters=None):
+    def request(
+            self,
+            service: str,
+            identifiant: str = '',
+            method: str = '',
+            parameters: str = None
+    ):
         """
         Make request to the API and return response as a dict.\n
         Parameters names are the same as described in
@@ -180,7 +185,7 @@ class Api(object):
         return Api.check_error(response)
 
     @staticmethod
-    def request_url(url):
+    def request_url(url: str):
         """
         Send a GET request to `url`.
 
@@ -199,7 +204,7 @@ class Api(object):
 
         return response
 
-    def request_streaming(self, identifiant='', st_type='track'):
+    def request_streaming(self, identifiant: str = '', st_type: str = 'track'):
         """
         Make a request to get the streaming url of `type` with `id`.
 

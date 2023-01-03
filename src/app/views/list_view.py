@@ -23,7 +23,7 @@ class ListView(list):
 
     # pylint: enable=line-too-long
 
-    def __init__(self, view, items):
+    def __init__(self, view, items: dict | list):
         """
         Creates a list of viewable item.
 

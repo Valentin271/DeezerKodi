@@ -2,13 +2,7 @@
 Provides helpers functions to manipulate URLs.
 """
 
-# Python3
-try:
-    from urllib.parse import urlencode
-# Python2
-except ImportError:
-    # pylint: disable=no-name-in-module
-    from urllib import urlencode
+from urllib.parse import urlencode
 
 
 def build(query):
@@ -19,15 +13,6 @@ def build(query):
     :param dict query: Options to format
     :return: The encoded url as str
     """
-    for k, v in query.items():
-        # Python2
-        try:
-            if isinstance(v, unicode):
-                query[k] = v.encode('utf-8')
-        # Python3
-        except NameError:
-            pass
-
     return urlencode(query)
 
 

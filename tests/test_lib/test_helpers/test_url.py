@@ -1,11 +1,7 @@
+from urllib.parse import unquote
+
+from lib.helpers.url import build, concat
 from testcase import TestCase
-
-try:
-    from urllib.parse import unquote
-except ImportError:
-    from urllib import unquote
-
-from src.lib.helpers.url import build, concat
 
 
 class TestBuild(TestCase):

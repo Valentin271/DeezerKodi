@@ -23,9 +23,12 @@ If you previously installed kubatek94's DeezerKodi addon, you should uninstall i
 
 ### Compatibility
 
-This addon has been tested with Kodi "Leia" 18 and Kodi "Matrix" 19.
+This addon has been tested with Kodi 19 and 20.
 Tests where done on Ubuntu, but the addon should work on every device.  
 If you have any compatibility issue, please refer to the Issues section.
+
+[Version 1.0.1](https://raw.githubusercontent.com/Valentin271/DeezerKodi/master/plugin.audio.deezer/plugin.audio.deezer-1.0.1.zip)
+is the latest version supporting Kodi 18.
 
 # Limitations
 

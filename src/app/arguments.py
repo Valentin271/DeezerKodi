@@ -2,11 +2,7 @@
 Provide a wrapper around cli argument given by kodi.
 """
 
-try:
-    from urllib.parse import parse_qs
-except ImportError:
-    # pylint: disable=import-error
-    from urlparse import parse_qs
+from urllib.parse import parse_qs
 
 
 class Arguments(object):
@@ -14,7 +10,7 @@ class Arguments(object):
     The Arguments class is a wrapper around kodi values retrieved by argv.
     """
 
-    def __init__(self, argv):
+    def __init__(self, argv: list):
         """
         Create an Arguments instance.
 
@@ -25,7 +21,7 @@ class Arguments(object):
         self.__parameters = Arguments.parse_qs(argv[2][1:])
 
     @staticmethod
-    def parse_qs(qs):
+    def parse_qs(qs: str):
         """
         Parse the given HTTP query string into a dict.
 
@@ -34,7 +30,7 @@ class Arguments(object):
         """
         return parse_qs(qs)
 
-    def get(self, key, default=None):
+    def get(self, key: str, default=None):
         """
         Get the value of the given key.
         If the result is an array with 1 element (as returned by urllib parse_qs),
@@ -51,7 +47,7 @@ class Arguments(object):
 
         return value
 
-    def has(self, key):
+    def has(self, key: str):
         """
         Determine if the given key is present in the parameters.
 
@@ -60,7 +56,7 @@ class Arguments(object):
         """
         return key in self.__parameters
 
-    def set(self, key, value):
+    def set(self, key: str, value):
         """
         Sets the given value to the given key
 
