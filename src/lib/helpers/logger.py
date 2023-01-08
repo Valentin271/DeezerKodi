@@ -12,43 +12,43 @@ class Logger(object):
     """
 
     @staticmethod
-    def log(msg, loglevel):
+    def log(msg: str, loglevel: int, *args, **kwargs):
         """
         Basic log function, adds DeezerKodi prefix.
         """
-        xbmc.log('DeezerKodi: {}'.format(msg), loglevel)
+        xbmc.log('DeezerKodi: {}'.format(msg.format(*args, **kwargs)), loglevel)
 
     @staticmethod
-    def debug(msg):
+    def debug(msg: str, *args, **kwargs):
         """
         Logs a debug information.
         """
-        Logger.log(msg, xbmc.LOGDEBUG)
+        Logger.log(msg, xbmc.LOGDEBUG, *args, **kwargs)
 
     @staticmethod
-    def info(msg):
+    def info(msg: str, *args, **kwargs):
         """
         Logs an information.
         """
-        Logger.log(msg, xbmc.LOGINFO)
+        Logger.log(msg, xbmc.LOGINFO, *args, **kwargs)
 
     @staticmethod
-    def warn(msg):
+    def warn(msg: str, *args, **kwargs):
         """
         Logs a warning.
         """
-        Logger.log(msg, xbmc.LOGWARNING)
+        Logger.log(msg, xbmc.LOGWARNING, *args, **kwargs)
 
     @staticmethod
-    def error(msg):
+    def error(msg: str, *args, **kwargs):
         """
         Logs an error.
         """
-        Logger.log(msg, xbmc.LOGERROR)
+        Logger.log(msg, xbmc.LOGERROR, *args, **kwargs)
 
     @staticmethod
-    def fatal(msg):
+    def fatal(msg: str, *args, **kwargs):
         """
         Logs a fatal error.
         """
-        Logger.log(msg, xbmc.LOGFATAL)
+        Logger.log(msg, xbmc.LOGFATAL, *args, **kwargs)

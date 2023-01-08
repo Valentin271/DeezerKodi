@@ -1,8 +1,9 @@
 """This package contains all custom DeezerKodi exceptions."""
 
 from .api_exception import ApiException
-from .credentials_exception import CredentialsException
 from .deezerkodi_exception import DeezerKodiException
+from .empty_credentials_exception import EmptyCredentialsException
+from .loaded_credentials_exception import LoadedCredentialsException
 from .oauth_exception import OAuthException
 from .quota_exception import QuotaException
 

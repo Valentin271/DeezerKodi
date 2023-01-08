@@ -10,7 +10,7 @@ import requests
 import xbmcvfs
 
 from lib import Settings
-from lib.exceptions import ApiExceptionFinder, CredentialsException
+from lib.exceptions import ApiExceptionFinder, LoadedCredentialsException, EmptyCredentialsException
 from lib.helpers.logger import Logger
 
 
@@ -50,11 +50,19 @@ class Api(object):
                     Settings.get('username'),
                     Settings.get('password')
                 )
+            except LoadedCredentialsException:
+                Logger.warn("Loaded bad API credentials, trying from settings values ...")
+                cls.clean_cache()
+
+                cls.__INSTANCE = cls(
+                    Settings.get('username'),
+                    Settings.get('password')
+                )
 
         return cls.__INSTANCE
 
     @classmethod
-    def clean_cache(cls):
+    def clean_cache(cls) -> None:
         """Cleans the API cache"""
         Logger.debug("Cleaning API cache ...")
         xbmcvfs.delete(Api.__CACHE_FILE)
@@ -66,19 +74,20 @@ class Api(object):
 
         :param str username: The user's name
         :param str password: The user's password
+        :raise EmptyCredentialsException: If the credentials are empty
         """
         Logger.debug("Creating new API connection ...")
         self._username = username
-        self._password = None
-        self._access_token = None
+        self._password = ""
         self.set_password(password)
+        self._access_token = None
+
+        if self.empty_credentials():
+            raise EmptyCredentialsException("Username and password are required!")
+
         self._obtain_access_token()
 
-    def __del__(self):
-        """Saves the Api instance on disk on deletion"""
-        self.save()
-
-    def set_password(self, password: str):
+    def set_password(self, password: str) -> None:
         """
         Save md5 of user password.
 
@@ -88,7 +97,7 @@ class Api(object):
         md5.update(password.encode("utf-8"))
         self._password = md5.hexdigest()
 
-    def save(self):
+    def save(self) -> None:
         """
         Save the connection to a file in kodi special temp folder.
         """
@@ -98,29 +107,42 @@ class Api(object):
             pickle.dump(self, file, pickle.HIGHEST_PROTOCOL)
 
     @staticmethod
-    def load():
+    def load(cache_file: str = __CACHE_FILE):
         """
-        Load a connection from a file in kodi special temp folder.
+        Loads a connection from a file.
 
         :return: an Api object
         """
-        Logger.debug("Getting Api from file {}".format(Api.__CACHE_FILE))
+        Logger.debug("Getting Api from file {}".format(cache_file))
 
-        with open(Api.__CACHE_FILE, 'rb') as file:
+        with open(cache_file, 'rb') as file:
             cls = pickle.load(file)
+
+        if cls.empty_credentials(check_token=True):
+            raise LoadedCredentialsException("Loaded empty username or password")
 
         return cls
 
-    def _obtain_access_token(self):
+    def empty_credentials(self, check_token: bool = False) -> bool:
+        """
+        Checks if credentials are empty.
+
+        :param check_token: Tells wether or not to check the access token
+        :return: True if any credential is empty, False if there are all filled
+        """
+        empty_creds = self._username == "" or self._password == ""
+        empty_tok = False
+
+        if check_token:
+            empty_tok = self._access_token is None
+
+        return empty_creds or empty_tok
+
+    def _obtain_access_token(self) -> None:
         """
         Obtain access token by pretending to be a smart tv.
-
-        :raise CredentialsException: In case the credentials are empty
         """
         Logger.debug("Connection: Getting access token from API ...")
-
-        if self._username is None or self._password is None:
-            raise CredentialsException("Username and password are required!")
 
         response = requests.get(self._API_AUTH_URL, params={
             'login': self._username,
@@ -131,19 +153,6 @@ class Api(object):
         Api.check_error(response)
 
         self._access_token = response['access_token']
-
-    @staticmethod
-    def _merge_two_dicts(lhs: dict, rhs: dict):
-        """
-        Given two dicts, merge them into a new dict as a shallow copy.
-
-        :param dict lhs: First dict
-        :param dict rhs: Second dict
-        :return: Merged dict
-        """
-        res = lhs.copy()
-        res.update(rhs)
-        return res
 
     def request(
             self,
@@ -158,7 +167,7 @@ class Api(object):
         the Deezer API documentation (https://developers.deezer.com/api).
 
         :param str service:     The service to request
-        :param str identifiant:          Item's ID in the service
+        :param str identifiant: Item's ID in the service
         :param str method:      Service method
         :param dict parameters: Additional parameters at the end
         :return:                JSON response as dict
@@ -171,7 +180,7 @@ class Api(object):
             parameters = {}
 
         url = self._API_BASE_URL.format(service=service, id=identifiant, method=method)
-        response = requests.get(url, params=self._merge_two_dicts(
+        response = requests.get(url, params=_merge_two_dicts(
             {'output': 'json', 'access_token': self._access_token},
             parameters
         )).json()
@@ -182,7 +191,7 @@ class Api(object):
 
         Api.check_error(response)
 
-        return Api.check_error(response)
+        return response
 
     @staticmethod
     def request_url(url: str):
@@ -243,3 +252,16 @@ class Api(object):
             ApiExceptionFinder.from_error(response['error'])
 
         return response
+
+
+def _merge_two_dicts(lhs: dict, rhs: dict) -> dict:
+    """
+    Given two dicts, merge them into a new dict as a shallow copy.
+
+    :param dict lhs: First dict
+    :param dict rhs: Second dict
+    :return: Merged dict
+    """
+    res = lhs.copy()
+    res.update(rhs)
+    return res

@@ -8,8 +8,7 @@ import xbmcplugin
 from app import routes
 from app.http import Router, Api
 from app.views.list_view import ListView
-from lib.exceptions import ApiException, OAuthException
-from lib.exceptions.credentials_exception import CredentialsException
+from lib.exceptions import ApiException, OAuthException, EmptyCredentialsException
 from lib.helpers.logger import Logger
 
 
@@ -49,13 +48,15 @@ class Application(object):
         items = []
 
         try:
+            # Loads an api instance
+            Api.instance()
             items = self.__router.route(self)
         except OAuthException as e:
             xbmcgui.Dialog().notification(e.header, "Refreshing token ...", "", 1000, False)
             Api.clean_cache()
             self.run()
             return
-        except CredentialsException:
+        except EmptyCredentialsException:
             self.__addon.openSettings()
             self.run()
             return
@@ -72,6 +73,8 @@ class Application(object):
 
         xbmcplugin.addDirectoryItems(self.__args.addon_handle, items, len(items))
         xbmcplugin.endOfDirectory(self.__args.addon_handle)
+
+        Api.instance().save()
 
     def sortable(self, *sorts):
         """
