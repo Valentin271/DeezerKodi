@@ -1,5 +1,24 @@
 # Changelog
 
+## v2.0.5
+
+### [Fix]
+
+- Fixed "authenticate user failed" when streaming
+
+## v2.0.4
+
+### [Fix]
+
+- Fixed a python version incompatibility
+
+## v2.0.3
+
+### [Breaking changes]
+
+- Added Kodi 20 support
+- Dropped kodi 18 support
+
 ## v1.0.1
 
 - More robust API error handling
