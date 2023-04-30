@@ -4,7 +4,6 @@ Provide a simple wrapper around Deezer API (with streaming).
 """
 
 import hashlib
-import os
 import pickle
 
 import requests
@@ -51,7 +50,7 @@ class Api(object):
                     Settings.get('username'),
                     Settings.get('password')
                 )
-            except LoadedCredentialsException or EOFError:
+            except (LoadedCredentialsException, EOFError):
                 Logger.warn("Loaded bad API credentials, trying from settings values ...")
                 cls.clean_cache()
 
